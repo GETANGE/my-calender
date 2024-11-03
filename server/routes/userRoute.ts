@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 
 import { getAllUsers, getUser } from '../controllers/userController';
-import { createUser, forgotPassword, loginUser, protectRoute, restrictTo } from '../controllers/authController';
+import { createUser, forgotPassword, loginUser, protectRoute, resetPassword, restrictTo, updatePassword } from '../controllers/authController';
 import AppError from '../utils/AppError';
 
 const router = express.Router();
@@ -22,11 +22,13 @@ const upload = multer({
     }
 })
 
-router.get('/',  getAllUsers);
+router.get('/',protectRoute,restrictTo("ADMIN"),getAllUsers);
 router.post('/signup', upload.single('file'), createUser);
 router.post('/login', loginUser)
 router.post('/forgotPassword', forgotPassword)
+router.patch('/updatePassword', updatePassword)
 
 router.get('/:id', getUser);
+router.patch('/resetPassword/:otp',protectRoute, resetPassword)
 
 export default router;

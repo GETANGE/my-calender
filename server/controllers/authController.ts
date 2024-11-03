@@ -2,6 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import AppError from "../utils/AppError";
 import { uploadImage } from './../utils/imageBucket'
 import { generateResetToken } from "../middlewares/resetToken";
@@ -203,5 +204,108 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
     }catch(error){
         console.log(error)
         return next(new AppError("Error sending password reset email", 500));
+    }
+}
+
+// reset the forgotten password
+export const resetPassword = async (req:Request, res:Response, next:NextFunction)=>{
+    try {
+        const hashedToken = crypto.createHash('sha256').update(req.params.otp).digest('hex');
+
+        if(!hashedToken) {
+            return next(new AppError("Please provide a valid OTP token", 401));
+        }
+
+        let currentDate = new Date ();
+
+        const user: any = await prisma.user.findFirst({
+            where: {
+                passwordResetToken: hashedToken,
+                passwordResetExpiresAt : {
+                    gt: currentDate
+                }
+            }
+
+        })
+
+        if(!user){
+            return next(new AppError("Invalid or expired OTP token", 401));
+        }
+
+        const { password } = req.body as {
+            password: string;
+        }
+
+        if(!password){
+            return next(new AppError("Please provide a new password", 400));
+        }
+
+        // hash the password
+        const hashedPassword = await bcrypt.hash(password, 10)
+
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                password: hashedPassword,
+                passwordResetToken: null,
+                passwordResetExpiresAt: null
+            }
+        })
+
+        // generate a token for the user
+        const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET!, { expiresIn: process.env.EXPIRES });
+
+        res.status(200).json({
+            status: "success",
+            token: token,
+            message: "Password reset successful"
+        });
+    } catch (error) {
+        console.log("Token verification failed", error)
+        return next(new AppError("Token verification failed", 401));
+    }
+}
+
+// update password
+export const updatePassword = async (req: any, res: Response, next: NextFunction) => {
+    try {
+        const user = await prisma.user.findUnique(req.user.id);
+
+        if(!user){
+            return next(new AppError("User not found", 404));
+        }
+        const { currentPassword, newPassword } = req.body as {
+            currentPassword: string;
+            newPassword: string;
+        };
+
+        // compare the current password and the new password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+        if(!isMatch){
+            return next(new AppError("Your current password is wrong", 401));
+        }
+
+        // hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                password: hashedPassword
+            }
+        });
+        
+        res.status(200).json({
+            status: "success",
+            message: "Password updated successfully"
+        });
+    } catch (error) {
+        console.log("Error updating password", error);
+        return next(new AppError("Error updating password", 500));
     }
 }
