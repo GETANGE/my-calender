@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 
-import { getAllUsers, getUser } from '../controllers/userController';
+import { activateUser, deactivateUser, deleteUser, getAllUsers, getUser, updateProfilePicture, updateUser } from '../controllers/userController';
 import { createUser, forgotPassword, loginUser, protectRoute, resetPassword, restrictTo, updatePassword } from '../controllers/authController';
 import AppError from '../utils/AppError';
 
@@ -22,13 +22,17 @@ const upload = multer({
     }
 })
 
-router.get('/',protectRoute,restrictTo("ADMIN"),getAllUsers);
-router.post('/signup', upload.single('file'), createUser);
+router.get('/',getAllUsers);
+router.post('/signup', createUser);
 router.post('/login', loginUser)
 router.post('/forgotPassword', forgotPassword)
 router.patch('/updatePassword', updatePassword)
 
 router.get('/:id', getUser);
-router.patch('/resetPassword/:otp',protectRoute, resetPassword)
-
+router.patch('/resetPassword/:otp',protectRoute, resetPassword);
+router.patch('/deactivate/:id',protectRoute, deactivateUser);
+router.patch('/activate/:id',protectRoute, restrictTo('ADMIN'), activateUser);
+router.patch('/deleteUser/:id', deleteUser);
+router.patch('/updateMe/:id',protectRoute, updateUser)
+router.patch('/updateProfile/:id',upload.single('file'),updateProfilePicture)
 export default router;

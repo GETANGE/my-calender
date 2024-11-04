@@ -1,10 +1,9 @@
 import { Response, Request, NextFunction } from "express";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Role } from "@prisma/client";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import AppError from "../utils/AppError";
-import { uploadImage } from './../utils/imageBucket'
 import { generateResetToken } from "../middlewares/resetToken";
 import dotenv from 'dotenv'
 import { sendMail } from "../utils/Email";
@@ -16,16 +15,10 @@ const prisma = new PrismaClient();
 // Register a user
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // const imageUrl = await uploadImage(req.file);
-        // console.log("Uploaded Image "+imageUrl);
-
-        // if (!imageUrl) {
-        //     return next(new AppError("Error uploading image to S3.", 401));
-        // }
-
-        const { name, email, password, passwordConfirm } = req.body as {
+        const { name, email, password,role, passwordConfirm } = req.body as {
             name: string;
             email: string;
+            role: string;
             password: string;
             passwordConfirm: string;
         };
@@ -40,7 +33,7 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             data: {
                 name:name,
                 email:email,
-                // imageUrl:imageUrl,
+                role: role as Role,
                 password:hashedPassword
             }
         });
@@ -79,6 +72,10 @@ export const loginUser = async (req:Request, res:Response, next:NextFunction) =>
                 email: email
             }
         });
+
+        if(user.active === "INACTIVE"){
+            return next(new AppError("Your account is not activated yet.", 403));
+        }
 
         //compare if password match
         const match = await bcrypt.compare(password, user.password);
