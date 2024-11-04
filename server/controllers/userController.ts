@@ -1,7 +1,7 @@
 import { NextFunction, Response, Request } from "express";
 import AppError from "../utils/AppError";
 import { Active, PrismaClient } from '@prisma/client'
-import { uploadImage } from "../utils/imageBucket";
+import { deleteImage, uploadImage } from "../utils/imageBucket";
 
 const Prisma = new PrismaClient();
 
@@ -173,48 +173,46 @@ export const updateUser = async(req:any, res:Response, next:NextFunction)=>{
 }
 
 // updating profile pictures
-export const updateProfilePicture = async (req:Request, res:Response, next:NextFunction)=>{
+export const updateProfilePicture = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params as {
-            id: string;
-        }
+        const { id } = req.params;
 
         const user = await Prisma.user.findUnique({
-            where: {
-                id: parseInt(id)
-            }
-        })
+            where: { id: parseInt(id) }
+        });
 
-        if(!user){
-            return next(new AppError("User not found", 404))
+        if (!user) {
+            return next(new AppError("User not found", 404));
         }
 
-        const imageUrl =  await uploadImage(req.file);
-
-        if(!imageUrl){
-            return next(new AppError("Error uploading image", 404))
+        // If the user has an existing image, delete it first
+        if (user.imageUrl) {
+            const oldImageKey:any = user.imageUrl.split('/').pop(); // Get the image key from the URL
+            await deleteImage(oldImageKey);
         }
 
+        // Upload the new image
+        const { imageUrl } = await uploadImage(req.file) as {
+            imageUrl: string;
+        };
+
+        if (!imageUrl) {
+            return next(new AppError("Error uploading image", 500));
+        }
+
+        // Update user's profile with the new image URL
         await Prisma.user.update({
-            where:{
-                id: parseInt(id),
-            },
-            data: {
-                imageUrl: imageUrl
-            }
-        })
+            where: { id: parseInt(id) },
+            data: { imageUrl: imageUrl }
+        });
 
         res.status(200).json({
             status: "success",
             imageUrl: imageUrl,
             message: "Profile picture updated successfully"
-        })
-    } catch (error:any) {
-        if (error.code === "P2002" && error.meta?.target?.includes('imageUrl')) {
-            return next(new AppError("Please select another image", 409));
-        }
-
+        });
+    } catch (error: any) {
         console.log("Error updating profile picture", error);
-        return next (new AppError("Error updating profile", 404))
+        return next(new AppError("Error updating profile", 500));
     }
-}
+};
