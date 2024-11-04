@@ -11,7 +11,6 @@ const s3Client = new S3Client({
 export const uploadImage = async (file: any) => {
     try {
         const fileName = `image-${Date.now()}-${file.originalname}`;
-        console.log(fileName)
 
         const uploadParams = {
             Bucket: "restless-lake-6993",
