@@ -2,6 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import AppError from "../utils/AppError";
 import { PrismaClient } from "@prisma/client";
 import { sendMail } from "../utils/Email";
+import { decodeTokenId } from "../middlewares/decodeToken";
 
 const prisma = new PrismaClient();
 
@@ -73,17 +74,31 @@ export const getEvent = async (req: Request, res: Response, next: NextFunction) 
 // create new event
 export const createEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { title, description, startTime, endTime, createdById, collaborators, editSessions } = req.body;
+        let token; // mutated
+
+        if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+            token = req.headers.authorization.split(' ')[1];
+        }
+
+        if (!token) {
+            return next(new AppError("You are not logged in", 401));
+        }
+
+        const eventCreatorId = decodeTokenId(token);
+        
+        const { title, description, startTime, endTime, collaborators, editSessions } = req.body;
+
+        let createdBy = eventCreatorId;
 
         // Create the event
         const newEvent = await prisma.event.create({
             data: {
-                title,
-                description,
-                startTime,
-                endTime,
+                title:title,
+                description: description,
+                startTime: startTime,
+                endTime : endTime,
                 createdBy: {
-                    connect: { id: createdById }
+                    connect: { id: createdBy }
                 },
                 collaborators: Array.isArray(collaborators) && collaborators.length > 0
                     ? { connect: collaborators.map((collaboratorId: number) => ({ id: collaboratorId })) }
@@ -96,7 +111,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
 
         // Fetch creator's email address
         const creator = await prisma.user.findUnique({
-            where: { id: createdById },
+            where: { id: createdBy },
             select: {
                 email: true,
             },

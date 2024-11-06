@@ -102,7 +102,7 @@ export const protectRoute = async (req: any, res: Response, next: NextFunction) 
     try {
         let token; // mutated
 
-        if(req.headers.authorization && req.headers.authorization.startWith('Bearer')){
+        if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
             token = req.headers.authorization.split(' ')[1];
         }
 
@@ -268,7 +268,11 @@ export const resetPassword = async (req:Request, res:Response, next:NextFunction
 // update password
 export const updatePassword = async (req: any, res: Response, next: NextFunction) => {
     try {
-        const user = await prisma.user.findUnique(req.user.id);
+        const user = await prisma.user.findUnique({
+            where :{
+                id:req.user.id
+            }
+        });
 
         if(!user){
             return next(new AppError("User not found", 404));
