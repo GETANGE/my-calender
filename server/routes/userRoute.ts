@@ -29,10 +29,11 @@ router.post('/forgotPassword', forgotPassword)
 router.patch('/updatePassword', updatePassword)
 
 router.get('/:id', getUser);
-router.patch('/resetPassword/:otp',protectRoute, resetPassword);
+router.post('/resetPassword/:otp',protectRoute, resetPassword);
 router.patch('/deactivate/:id',protectRoute, deactivateUser);
 router.patch('/activate/:id',protectRoute, restrictTo('ADMIN'), activateUser);
 router.patch('/deleteUser/:id', deleteUser);
 router.patch('/updateMe/:id',protectRoute, updateUser)
-router.patch('/updateProfile/:id',upload.single('file'),updateProfilePicture)
+router.patch('/updateProfile/:id',upload.single('file'),updateProfilePicture);
+
 export default router;
