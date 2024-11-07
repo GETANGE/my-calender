@@ -24,7 +24,7 @@ const upload = multer({
 
 router.get('/',getAllUsers);
 router.post('/signup', createUser);
-router.post('/login', loginUser)
+router.post('/login', loginUser);
 router.post('/forgotPassword', forgotPassword)
 router.patch('/updatePassword', updatePassword)
 

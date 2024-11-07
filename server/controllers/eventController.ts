@@ -2,7 +2,7 @@ import { Response, Request, NextFunction } from "express";
 import AppError from "../utils/AppError";
 import { PrismaClient } from "@prisma/client";
 import { sendMail } from "../utils/Email";
-import { decodeTokenId } from "../middlewares/decodeToken";
+import { decodeTokenId, simulateToken } from "../utils/decodeToken";
 
 const prisma = new PrismaClient();
 
@@ -72,23 +72,11 @@ export const getEvent = async (req: Request, res: Response, next: NextFunction) 
 };
 
 // create new event
-export const createEvent = async (req: Request, res: Response, next: NextFunction) => {
+export const createEvent = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let token; // mutated
-
-        if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-            token = req.headers.authorization.split(' ')[1];
-        }
-
-        if (!token) {
-            return next(new AppError("You are not logged in", 401));
-        }
-
-        const eventCreatorId = decodeTokenId(token);
-        
         const { title, description, startTime, endTime, collaborators, editSessions } = req.body;
 
-        let createdBy = eventCreatorId;
+        let createdBy = req.user.id; // this user is already logged in and is on the request.
 
         // Create the event
         const newEvent = await prisma.event.create({
@@ -112,9 +100,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
         // Fetch creator's email address
         const creator = await prisma.user.findUnique({
             where: { id: createdBy },
-            select: {
-                email: true,
-            },
+            select: { email: true},
         });
 
         // Send notifications to each collaborator only if collaborators is a defined array
@@ -123,14 +109,7 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
                 for (const userId of collaborators) {
                     const user = await prisma.collaborator.findUnique({
                         where: { id: userId },
-                        include: {
-                            user: {
-                                select: {
-                                    name: true,
-                                    email: true,
-                                },
-                            },
-                        },
+                        include: { user: { select: { name: true, email: true}}},
                     });
 
                     if (user) {
@@ -158,29 +137,46 @@ export const createEvent = async (req: Request, res: Response, next: NextFunctio
 };
 
 // delete event
-export const deleteEvent = async (req:Request, res:Response, next:NextFunction)=>{
+/**
+ * The one created the event is the one allowed to delete it
+ */
+export const deleteEvent = async (req: any, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
+        const userId = req.user.id;
 
-        const deletedEvent = await prisma.event.delete({
-            where: {
-                id: parseInt(id)
+        // Fetch the event along with its creator's ID to validate authorization
+        const event = await prisma.event.findUnique({
+            where: { id: parseInt(id) },
+            include: {
+                createdBy: { select: { id: true } }
             }
         });
 
-        if(!deletedEvent){
+        // Validate if the event exists
+        if (!event) {
             return next(new AppError("Event not found", 404));
         }
 
+        // Check if the logged-in user is the creator of the event
+        if (event.createdBy.id !== userId) {
+            return next(new AppError("You are not authorized to delete this event", 403));
+        }
+
+        // Delete the event if authorization passes
+        await prisma.event.delete({
+            where: { id: parseInt(id) }
+        });
+
         res.status(200).json({
-            status:'success',
-            data: deletedEvent,
+            status: 'Event deleted successfully',
+            data: null
         });
     } catch (error) {
-        console.log("Error deleting event", error);
+        console.error("Error deleting event:", error);
         return next(new AppError("Failed to delete event", 500));
     }
-}
+};
 
 // update event
 export const updateEvent = async (req: Request, res: Response, next: NextFunction) => {
