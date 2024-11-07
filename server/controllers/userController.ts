@@ -1,5 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import AppError from "../utils/AppError";
+import jwt from "jsonwebtoken"
 import { Active, PrismaClient } from '@prisma/client'
 import { deleteImage, uploadImage } from "../utils/imageBucket";
 

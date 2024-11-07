@@ -7,6 +7,7 @@ import AppError from "../utils/AppError";
 import { generateResetToken } from "../middlewares/resetToken";
 import dotenv from 'dotenv'
 import { sendMail } from "../utils/Email";
+import { decodeTokenId, simulateToken } from "../utils/decodeToken";
 
 dotenv.config();
 
@@ -100,21 +101,17 @@ export const loginUser = async (req:Request, res:Response, next:NextFunction) =>
 // protecting routes
 export const protectRoute = async (req: any, res: Response, next: NextFunction) => {
     try {
-        let token; // mutated
+        const token = await simulateToken(req, res, next);
 
-        if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
-            token = req.headers.authorization.split(' ')[1];
+        if(!token){
+            return next(new AppError("Token not verified", 401));
         }
 
-        if (!token) {
-            return next(new AppError("You are not logged in", 401));
-        }
-
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: any };
+        const decodedId = decodeTokenId(token);
 
         const user = await prisma.user.findUnique({
             where: {
-                id: decoded.id
+                id: decodedId
             }
         });
 
@@ -122,7 +119,7 @@ export const protectRoute = async (req: any, res: Response, next: NextFunction) 
             return next(new AppError("User no longer exists", 401));
         }
 
-        req.user = user;
+        req.user = user; // the current user is placed on the request and can be accessed anywhere
         next();
     } catch (error) {
         console.log(error)
