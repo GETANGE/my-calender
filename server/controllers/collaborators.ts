@@ -62,6 +62,13 @@ export const getSingleCollaborator = async (req: Request, res: Response, next: N
                         }
                     }
                 },
+                user :{
+                    select: {
+                        name: true,
+                        email: true,
+                        imageUrl: true
+                    }
+                },
                 role: true
             }
         });

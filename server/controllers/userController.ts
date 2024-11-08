@@ -1,8 +1,8 @@
 import { NextFunction, Response, Request } from "express";
 import AppError from "../utils/AppError";
-import jwt from "jsonwebtoken"
 import { Active, PrismaClient } from '@prisma/client'
 import { deleteImage, uploadImage } from "../utils/imageBucket";
+import { decodeTokenId, simulateToken } from "../utils/decodeToken";
 
 const Prisma = new PrismaClient();
 
@@ -88,9 +88,18 @@ export const deleteUser = async(req:Request, res:Response, next:NextFunction)=>{
 // deactivating a user
 export const deactivateUser = async(req:Request, res:Response, next:NextFunction)=>{
     try {
+
+        const token = await simulateToken(req, res, next)
+
+        if(!token ){
+            return next(new AppError("Token verification failed", 401));
+        }
+
+        const userId = decodeTokenId(token);
+
         const user = await Prisma.user.findUnique({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(userId)
             }
         });
 
@@ -174,12 +183,18 @@ export const updateUser = async(req:any, res:Response, next:NextFunction)=>{
 }
 
 // updating profile pictures
-export const updateProfilePicture = async (req: Request, res: Response, next: NextFunction) => {
+export const updateProfilePicture = async (req: any, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params;
+        const token = await simulateToken(req, res, next);
+
+        if(!token){
+            return next(new AppError("Token not verified", 401));
+        }
+
+        const decodedId = decodeTokenId(token);
 
         const user = await Prisma.user.findUnique({
-            where: { id: parseInt(id) }
+            where: { id: decodedId }
         });
 
         if (!user) {
@@ -203,13 +218,12 @@ export const updateProfilePicture = async (req: Request, res: Response, next: Ne
 
         // Update user's profile with the new image URL
         await Prisma.user.update({
-            where: { id: parseInt(id) },
+            where: { id: decodedId },
             data: { imageUrl: imageUrl }
         });
 
         res.status(200).json({
             status: "success",
-            imageUrl: imageUrl,
             message: "Profile picture updated successfully"
         });
     } catch (error: any) {
