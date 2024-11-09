@@ -13,6 +13,7 @@ const port = process.env.PORT || 4000;
 import userRoute from './routes/userRoute'
 import eventRoute from './routes/eventsRoute'
 import collaboratorRoute from './routes/collaboratorRoute'
+import editSessionRoute from './routes/editSessionRoute'
 
 // Middleware
 app.use(morgan("dev"));
@@ -23,9 +24,10 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/v1/users', userRoute)
-app.use('/api/v1/events', eventRoute)
-app.use('/api/v1/collaborators', collaboratorRoute)
+app.use('/api/v1/users', userRoute);
+app.use('/api/v1/events', eventRoute);
+app.use('/api/v1/collaborators', collaboratorRoute);
+app.use('/api/v1/editSession', editSessionRoute);
 
 // Root route
 app.get("/", (req: Request, res: Response) => {

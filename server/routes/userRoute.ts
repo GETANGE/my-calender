@@ -34,6 +34,6 @@ router.patch('/deactivate/:id',protectRoute, deactivateUser);
 router.patch('/activate/:id',protectRoute, restrictTo('ADMIN'), activateUser);
 router.patch('/deleteUser/:id', deleteUser);
 router.patch('/updateMe/:id',protectRoute, updateUser)
-router.patch('/updateProfile/:id',upload.single('file'),updateProfilePicture);
+router.patch('/updateProfile',protectRoute,upload.single('file'),updateProfilePicture);
 
 export default router;
