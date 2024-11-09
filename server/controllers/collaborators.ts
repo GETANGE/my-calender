@@ -12,14 +12,19 @@ export const getAllCollaborations = async (req: Request, res: Response, next:Nex
                     select: {
                         title: true,
                         description: true,
-                        startTime: true,
-                        endTime: true,
                         createdBy: {
                             select: {
                                 name: true,
                                 email: true,
                             }
                         }
+                    }
+                },
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                        imageUrl: true,
                     }
                 }
             }

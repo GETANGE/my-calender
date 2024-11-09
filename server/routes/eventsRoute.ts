@@ -7,7 +7,7 @@ const router = express.Router()
 
 router
     .route('/')
-            .get(protectRoute,getAllEvents)
+            .get(getAllEvents)
             .post(protectRoute,createEvent)
 
 router
