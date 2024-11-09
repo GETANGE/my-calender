@@ -2,25 +2,34 @@ import { Response, Request, NextFunction } from "express";
 import AppError from "../utils/AppError";
 import { PrismaClient } from "@prisma/client";
 import { sendMail } from "../utils/Email";
-import { decodeTokenId, simulateToken } from "../utils/decodeToken";
+import ApiFeatures from "../utils/ApiFeatures";
 
 const prisma = new PrismaClient();
 
 // get all events
-export const getAllEvents = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllEvents = async (req: Request, res: Response, next:NextFunction) => {
     try {
-        const events = await prisma.event.findMany();
+        const features = new ApiFeatures(prisma.event, req.query)
+            .filtering()
+            .sorting()
+            .limiting()
+            .pagination();
+
+        const events = await features.execute();
 
         if(events.length < 1){
             return next(new AppError("No events found", 404));
         }
-
+        
         res.status(200).json({
-            status: "success",
-            data: events,
+            status: 'success',
+            results: events.length,
+            data: {
+                events
+            }
         });
     } catch (error) {
-        next(new AppError("Failed to get events", 500));
+        return next(new AppError("Error getting events", 500));
     }
 };
 

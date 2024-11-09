@@ -3,6 +3,7 @@ import AppError from "../utils/AppError";
 import { Active, PrismaClient } from '@prisma/client'
 import { deleteImage, uploadImage } from "../utils/imageBucket";
 import { decodeTokenId, simulateToken } from "../utils/decodeToken";
+import ApiFeatures from "../utils/ApiFeatures";
 
 const Prisma = new PrismaClient();
 
@@ -19,7 +20,13 @@ const filteredObj = function(obj: { [x: string]: any; }, ...allowedFields: strin
 // get all users from the database
 export const getAllUsers = async(req:Request, res:Response, next:NextFunction)=>{
     try {
-        const users = await Prisma.user.findMany();
+        const features = new ApiFeatures(Prisma.user, req.query)
+                        .filtering()
+                        .pagination()
+                        .limiting()
+                        .sorting();
+
+        const users = await features.execute();
 
         if(users.length < 1){
             return next(new AppError("No users found", 404))
