@@ -9,11 +9,13 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.682.0",
     "@prisma/client": "^5.22.0",
+    "@types/africastalking": "^0.6.2",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/multer": "^1.4.12",
     "@types/nodemailer": "^6.4.16",
+    "africastalking": "^0.7.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

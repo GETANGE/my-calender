@@ -12,7 +12,7 @@ router
 
 router
     .route('/:id')
-            .get(protectRoute,getEvent)
+            .get(getEvent)
             .patch(protectRoute,updateEvent)
             .delete(protectRoute,deleteEvent)
 export default router;
