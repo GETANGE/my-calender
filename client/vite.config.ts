@@ -1,8 +1,9 @@
 import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
- 
-export default defineConfig({
+import type { UserConfig } from "vite";  // Import the correct types
+
+export default defineConfig<UserConfig>({
   plugins: [react()],
   resolve: {
     alias: {
