@@ -4,7 +4,7 @@ import { FcCalendar } from "react-icons/fc";
 import Welcome from "@/components/landing/welcome";
 import HeroSection from "@/components/landing/hero-section";
 import Testimonial from "@/components/landing/testimonials";
-import  ResponsiveFooter  from "@/components/landing/footer";
+import ResponsiveFooter  from "@/components/landing/footer";
 
 export default function Landing(){
     return(
