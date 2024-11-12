@@ -16,12 +16,13 @@ const prisma = new PrismaClient();
 // Register a user
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { name, email, password,role, passwordConfirm } = req.body as {
+        const { name, email, password,role, passwordConfirm, phoneNumber } = req.body as {
             name: string;
             email: string;
             role: string;
             password: string;
             passwordConfirm: string;
+            phoneNumber: string;
         };
 
         if (password !== passwordConfirm) {
@@ -34,8 +35,10 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             data: {
                 name:name,
                 email:email,
+                phoneNumber:phoneNumber,
                 role: role as Role,
-                password:hashedPassword
+                password:hashedPassword,
+                phoneNumber:phoneNumber
             }
         });
 
