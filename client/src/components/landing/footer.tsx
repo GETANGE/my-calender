@@ -44,5 +44,3 @@ const ResponsiveFooter = () => {
         </footer>
     );
 };
-
-export default ResponsiveFooter;
