@@ -37,7 +37,8 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
                 email:email,
                 phoneNumber:phoneNumber,
                 role: role as Role,
-                password:hashedPassword
+                password:hashedPassword,
+                phoneNumber:phoneNumber
             }
         });
 

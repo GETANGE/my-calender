@@ -1,45 +1,98 @@
-import { FaCalendarAlt, FaListAlt, FaBell, FaMousePointer, FaCalendarCheck } from 'react-icons/fa';
+// react icons
+import {CiSearch} from "react-icons/ci";
+import {FaCircleCheck} from "react-icons/fa6";
 
-export default function HeroSection() {
+const HeroSection = () => {
+
     return (
-            <div className="min-h-screen bg-gradient-to-b from-white to-blue-50 flex items-center justify-center">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div className="text-center">
-                <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
-                    Unlock Your Productivity with Calendery
-                </h1>
-                <p className="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-                    Effortlessly manage your schedule, tasks, and events with our robust calendar features.
-                </p>
+        <div className="min-h-screen h-full bg-[#FBFBFB] rounded-md">
+
+            {/* header */}
+            <header className="flex lg:flex-row flex-col gap-[50px] lg:gap-10 items-center p-8">
+                <div className="w-full lg:w-[55%]">
+                    <h1 className="text-[40px] sm:text-[60px] font-[600] leading-[45px] sm:leading-[70px]">Let
+                        your <span className="text-[#F38160]">groceries</span> come to you</h1>
+                    <p className="text-[18px] text-gray-400 mt-2">Get fresh groceries online without stepping out to
+                        make delicious food with the freshest ingredients</p>
+                    <div className="relative my-5">
+                        <input placeholder="Search here"
+                            className="py-3 px-4 w-full outline-none rounded-l-md bg-gray-100"/>
+                        <button
+                            className="h-full absolute top-0 right-0 bg-[#F38160] px-3 text-white text-[1.3rem] rounded-r-md">
+                            <CiSearch/></button>
+                    </div>
+
+                    <div className="grid grid-cols-1 400px:grid-cols-2 gap-[15px] w-full sm:w-[80%]">
+                        <p className="flex items-center gap-[5px] text-gray-400 text-[1rem]">
+                            <FaCircleCheck className="text-[#F0B70D] text-[1.2rem]"/>
+                            Fresh Vegetables
+                        </p>
+                        <p className="flex items-center gap-[5px] text-gray-400 text-[1rem]">
+                            <FaCircleCheck className="text-[#F0B70D] text-[1.2rem]"/>
+                            100% Guarantee
+                        </p>
+                        <p className="flex items-center gap-[5px] text-gray-400 text-[1rem]">
+                            <FaCircleCheck className="text-[#F0B70D] text-[1.2rem]"/>
+                            Cash on Delivery
+                        </p>
+                        <p className="flex items-center gap-[5px] text-gray-400 text-[1rem]">
+                            <FaCircleCheck className="text-[#F0B70D] text-[1.2rem]"/>
+                            Fast Delivery
+                        </p>
+                    </div>
                 </div>
-                <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-5">
-                <div className="flex flex-col items-center">
-                    <FaCalendarAlt className="text-gray-500 h-12 w-12 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">Event Management</h3>
-                    <p className="mt-2 text-gray-500">Keep track of all your important events.</p>
+
+                <div className="w-full sm:w-[40%]">
+                    <img src="https://i.ibb.co/61R7zbv/delivery-concept-handsome-african-american-deliver-AZUZTZ3-1.png"
+                        alt="image" className="w-full h-full"/>
                 </div>
-                <div className="flex flex-col items-center">
-                    <FaListAlt className="text-gray-500 h-12 w-12 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">Task Management</h3>
-                    <p className="mt-2 text-gray-500">Stay on top of your to-dos and deadlines.</p>
+            </header>
+
+            <section className="p-8 mt-16 grid sm:grid-cols-2 grid-cols-1 lg:grid-cols-4 gap-[25px] flex-wrap">
+                <div>
+                    <img src="https://i.ibb.co/XCM2bhM/Baby-food.png" alt="icon"
+                        className="w-[60px]"/>
+                    <h4 className="text-[18px] font-[500]">Honey</h4>
+                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
+                        dolor sit amet, consectetur adipiscing elit.</p>
                 </div>
-                <div className="flex flex-col items-center">
-                    <FaBell className="text-gray-500 h-12 w-12 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">Reminder Notifications</h3>
-                    <p className="mt-2 text-gray-500">Never miss a beat with our smart reminders.</p>
+
+                <div>
+                    <img src="https://i.ibb.co/J5Yd3cZ/Condiments.png" alt="icon"
+                        className="w-[60px]"/>
+                    <h4 className="text-[18px] font-[500]">Spices & Seasonings</h4>
+                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
+                        dolor sit amet, consectetur adipiscing elit.</p>
                 </div>
-                <div className="flex flex-col items-center">
-                    <FaMousePointer className="text-gray-500 h-12 w-12 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">Drag and Drop Events</h3>
-                    <p className="mt-2 text-gray-500">Easily organize your schedule with intuitive controls.</p>
+
+                <div>
+                    <img src="https://i.ibb.co/h2R9kny/Dairy.png" alt="icon"
+                        className="w-[60px]"/>
+                    <h4 className="text-[18px] font-[500]">Dairy Products</h4>
+                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
+                        dolor sit amet, consectetur adipiscing elit.</p>
                 </div>
-                <div className="flex flex-col items-center">
-                    <FaCalendarCheck className="text-gray-500 h-12 w-12 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">Customizable Calendars</h3>
-                    <p className="mt-2 text-gray-500">Personalize your calendar to fit your needs.</p>
+
+                <div>
+                    <img src="https://i.ibb.co/HYHZfHQ/Grain-and-pasta.png" alt="icon"
+                        className="w-[60px]"/>
+                    <h4 className="text-[18px] font-[500]">Flour</h4>
+                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
+                        dolor sit amet, consectetur adipiscing elit.</p>
                 </div>
+
+                <div>
+                    <img src="https://i.ibb.co/y5ZTLHv/Fruits-and-vegetables.png" alt="icon"
+                        className="w-[60px]"/>
+                    <h4 className="text-[18px] font-[500]">Vegetables & Fruits</h4>
+                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
+                        dolor sit amet, consectetur adipiscing elit.</p>
                 </div>
-            </div>
-            </div>
+
+            </section>
+        </div>
     );
-}
+};
+
+export default HeroSection;
+                    
