@@ -1,98 +1,99 @@
-// react icons
-import {CiSearch} from "react-icons/ci";
-import {FaCircleCheck} from "react-icons/fa6";
+import { Search, CheckCircle, Calendar as CalendarIcon, Bell, Users, Shield, Cloud } from 'lucide-react';
+import { SetStateAction, useState } from 'react';
+import { Calendar } from 'primereact/calendar';
 
 const HeroSection = () => {
+    const [date, setDate] = useState(null);
 
     return (
-        <div className="min-h-screen h-full bg-[#FBFBFB] rounded-md">
-
-            {/* header */}
-            <header className="flex lg:flex-row flex-col gap-[50px] lg:gap-10 items-center p-8">
-                <div className="w-full lg:w-[55%]">
-                    <h1 className="text-[40px] sm:text-[60px] font-[600] leading-[45px] sm:leading-[70px]">Let
-                        your <span className="text-[#F38160]">groceries</span> come to you</h1>
-                    <p className="text-[18px] text-gray-400 mt-2">Get fresh groceries online without stepping out to
-                        make delicious food with the freshest ingredients</p>
-                    <div className="relative my-5">
-                        <input placeholder="Search here"
-                            className="py-3 px-4 w-full outline-none rounded-l-md bg-gray-100"/>
-                        <button
-                            className="h-full absolute top-0 right-0 bg-[#F38160] px-3 text-white text-[1.3rem] rounded-r-md">
-                            <CiSearch/></button>
+        <div className="min-h-screen bg-slate-50 rounded-md">
+            {/* Header Section */}
+            <header className="flex lg:flex-row flex-col gap-12 lg:gap-10 items-center p-8">
+                <div className="w-full lg:w-3/5">
+                    <h1 className="text-4xl sm:text-6xl font-semibold leading-tight sm:leading-[70px]">
+                        Schedule Your <span className="text-blue-600">Time</span> Wisely
+                    </h1>
+                    <p className="text-lg text-gray-600 mt-4">
+                        Take control of your schedule with our intuitive calendar app. Plan meetings, set reminders, and collaborate with team members - all in one place.
+                    </p>
+                    <div className="relative my-6">
+                        <input 
+                            placeholder="Search events and meetings"
+                            className="py-3 px-4 w-full outline-none rounded-md border border-gray-200 focus:border-blue-500 transition-colors"
+                        />
+                        <button className="h-full absolute top-0 right-0 bg-blue-600 px-4 text-white rounded-r-md hover:bg-blue-700 transition-colors">
+                            <Search className="w-5 h-5" />
+                        </button>
                     </div>
 
-                    <div className="grid grid-cols-1 400px:grid-cols-2 gap-[15px] w-full sm:w-[80%]">
-                        <p className="flex items-center gap-[5px] text-gray-400 text-[1rem]">
-                            <FaCircleCheck className="text-[#F0B70D] text-[1.2rem]"/>
-                            Fresh Vegetables
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full sm:w-4/5">
+                        <p className="flex items-center gap-2 text-gray-600">
+                            <CheckCircle className="text-green-500 w-5 h-5" />
+                            Smart Scheduling
                         </p>
-                        <p className="flex items-center gap-[5px] text-gray-400 text-[1rem]">
-                            <FaCircleCheck className="text-[#F0B70D] text-[1.2rem]"/>
-                            100% Guarantee
+                        <p className="flex items-center gap-2 text-gray-600">
+                            <Shield className="text-green-500 w-5 h-5" />
+                            End-to-End Encryption
                         </p>
-                        <p className="flex items-center gap-[5px] text-gray-400 text-[1rem]">
-                            <FaCircleCheck className="text-[#F0B70D] text-[1.2rem]"/>
-                            Cash on Delivery
+                        <p className="flex items-center gap-2 text-gray-600">
+                            <Bell className="text-green-500 w-5 h-5" />
+                            Smart Notifications
                         </p>
-                        <p className="flex items-center gap-[5px] text-gray-400 text-[1rem]">
-                            <FaCircleCheck className="text-[#F0B70D] text-[1.2rem]"/>
-                            Fast Delivery
+                        <p className="flex items-center gap-2 text-gray-600">
+                            <Cloud className="text-green-500 w-5 h-5" />
+                            Cloud Sync
                         </p>
                     </div>
                 </div>
-
-                <div className="w-full sm:w-[40%]">
-                    <img src="https://i.ibb.co/61R7zbv/delivery-concept-handsome-african-american-deliver-AZUZTZ3-1.png"
-                        alt="image" className="w-full h-full"/>
+                <div>
+                    <Calendar value={date} onChange={(e: { value: SetStateAction<null>; }) => setDate(e.value)} inline showWeek style={{width: '458px'}}/>
                 </div>
             </header>
 
-            <section className="p-8 mt-16 grid sm:grid-cols-2 grid-cols-1 lg:grid-cols-4 gap-[25px] flex-wrap">
-                <div>
-                    <img src="https://i.ibb.co/XCM2bhM/Baby-food.png" alt="icon"
-                        className="w-[60px]"/>
-                    <h4 className="text-[18px] font-[500]">Honey</h4>
-                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit.</p>
+            {/* Features Section */}
+            <section className="p-8 mt-8 grid sm:grid-cols-2 grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="p-4 rounded-lg hover:bg-white hover:shadow-md transition-all">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <CalendarIcon className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <h4 className="text-lg font-medium">Smart Calendar</h4>
+                    <p className="text-sm leading-relaxed text-gray-600">
+                        Intelligent scheduling with conflict detection and timezone support.
+                    </p>
                 </div>
 
-                <div>
-                    <img src="https://i.ibb.co/J5Yd3cZ/Condiments.png" alt="icon"
-                        className="w-[60px]"/>
-                    <h4 className="text-[18px] font-[500]">Spices & Seasonings</h4>
-                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit.</p>
+                <div className="p-4 rounded-lg hover:bg-white hover:shadow-md transition-all">
+                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <Users className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <h4 className="text-lg font-medium">Team Collaboration</h4>
+                    <p className="text-sm leading-relaxed text-gray-600">
+                        Share calendars and coordinate meetings with team members effortlessly.
+                    </p>
                 </div>
 
-                <div>
-                    <img src="https://i.ibb.co/h2R9kny/Dairy.png" alt="icon"
-                        className="w-[60px]"/>
-                    <h4 className="text-[18px] font-[500]">Dairy Products</h4>
-                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit.</p>
+                <div className="p-4 rounded-lg hover:bg-white hover:shadow-md transition-all">
+                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <Bell className="w-6 h-6 text-green-600" />
+                    </div>
+                    <h4 className="text-lg font-medium">Smart Reminders</h4>
+                    <p className="text-sm leading-relaxed text-gray-600">
+                        Customizable notifications to keep you on schedule.
+                    </p>
                 </div>
 
-                <div>
-                    <img src="https://i.ibb.co/HYHZfHQ/Grain-and-pasta.png" alt="icon"
-                        className="w-[60px]"/>
-                    <h4 className="text-[18px] font-[500]">Flour</h4>
-                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit.</p>
+                <div className="p-4 rounded-lg hover:bg-white hover:shadow-md transition-all">
+                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                        <Cloud className="w-6 h-6 text-orange-600" />
+                    </div>
+                    <h4 className="text-lg font-medium">Cloud Sync</h4>
+                    <p className="text-sm leading-relaxed text-gray-600">
+                        Access your calendar from any device with real-time synchronization.
+                    </p>
                 </div>
-
-                <div>
-                    <img src="https://i.ibb.co/y5ZTLHv/Fruits-and-vegetables.png" alt="icon"
-                        className="w-[60px]"/>
-                    <h4 className="text-[18px] font-[500]">Vegetables & Fruits</h4>
-                    <p className="text-[14px] leading-[18px] text-gray-400 font-[300]">Lorem ipsum
-                        dolor sit amet, consectetur adipiscing elit.</p>
-                </div>
-
             </section>
         </div>
     );
 };
 
 export default HeroSection;
-                    

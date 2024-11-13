@@ -16,20 +16,19 @@ const prisma = new PrismaClient();
 // Register a user
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { name, email, password,role, passwordConfirm, phoneNumber } = req.body as {
+        const { name, email, password,role, phoneNumber } = req.body as {
             name: string;
             email: string;
             role: string;
             password: string;
-            passwordConfirm: string;
             phoneNumber: string;
         };
 
-        if (password !== passwordConfirm) {
-            return next(new AppError("Passwords do not match", 400));
-        }
+        // if (password !== passwordConfirm) {
+        //     return next(new AppError("Passwords do not match", 400));
+        // }
 
-        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await prisma.user.create({
             data: {
@@ -38,7 +37,6 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
                 phoneNumber:phoneNumber,
                 role: role as Role,
                 password:hashedPassword,
-                phoneNumber:phoneNumber
             }
         });
 
