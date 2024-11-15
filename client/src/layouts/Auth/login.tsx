@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { LoginUser } from './../../components/api';  
+import { LoginUser } from './../../components/api';
 import { Button } from '@/components/ui/button';
 import { MdOutlineMail } from 'react-icons/md';
 import { RiLockPasswordLine } from 'react-icons/ri';
@@ -14,27 +14,68 @@ const LoginForm = () => {
     const [success, setSuccess] = useState('');
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+    
+        // Redirect to user-dashboard if token exists
+        if (token) {
+            navigate('/user-dashboard');
+        }
+    
+        // Define the event listener function
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'token') {
+                const newToken = localStorage.getItem('token');
+                if (newToken) {
+                    navigate('/user-dashboard');
+                } else {
+                    navigate('/login');
+                }
+            }
+        };
+    
+        // Add the event listener
+        window.addEventListener('storage', handleStorageChange);
+    
+        // Remove the event listener when the component unmounts
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+
+    }, [navigate]);
+    
 
     // Mutation for logging in a user
     const mutation = useMutation(LoginUser, {
-        onSuccess: (data) => {
-            console.log('Login successful:', data);
-            setSuccess('Login successful!');
-            setError(''); 
-            setEmail(''); 
-            setPassword(''); 
+        onSuccess: (data:any) => {
+
+            // get the token from the response.
+            const token = data?.token;
+
+            if (token) {
+                localStorage.setItem('token', JSON.stringify({ token }));
+                setSuccess('Login successful!');
+                setError('');
+                setEmail('');
+                setPassword('');
+
+                // Redirect to dashboard
+                navigate('/user-dashboard');
+            } else {
+                setError(data.message);
+            }
         },
         onError: (error: any) => {
             console.error('Login failed:', error);
-            setError(error?.response?.data?.message || "Login failed"); // Handle error message from API response
-            setSuccess(''); // Clear success message on error
+            setError(error?.response?.data?.message || 'Login failed. Please try again.');
+            setSuccess('');
         },
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setError(''); // Clear previous errors
-        setSuccess(''); // Clear previous success message
+        setError('');
+        setSuccess('');
         mutation.mutate({ email, password });
     };
 
@@ -45,7 +86,14 @@ const LoginForm = () => {
                     Login
                 </h2>
                 <p className="text-center text-sm text-gray-500 mb-6">
-                    Don't have an account? <a href="" className="text-blue-500 hover:underline" onClick={()=>navigate('/signin')}>Sign up instead.</a>
+                    Don't have an account?{' '}
+                    <a
+                        href="#"
+                        className="text-blue-500 hover:underline"
+                        onClick={() => navigate('/signin')}
+                    >
+                        Sign up instead.
+                    </a>
                 </p>
 
                 {success && <p className="text-green-900 text-xl text-center mb-4">{success}</p>}

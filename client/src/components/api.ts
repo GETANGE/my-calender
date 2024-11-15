@@ -24,13 +24,12 @@ export const registerUser = async (userData: UserData_1): Promise<string | undef
                 'Content-Type': 'application/json'
             }
         });
-        console.log(response);
+
         return response.data;
     } catch (err) {
         // Handle errors safely
         if (err instanceof AxiosError && err.response) {
-            console.log(err.response.data.message);
-            return err.response.data.message;
+            return err.response.data;
         } else {
             console.error('An unknown error occurred:', err);
         }
@@ -46,13 +45,13 @@ export const LoginUser = async (userData: UserData_2): Promise<string | undefine
                 'Content-Type': 'application/json'
             }
         });
-        console.log(response);
+
         return response.data;
     } catch (err) {
         // Handle errors safely
         if (err instanceof AxiosError && err.response) {
             console.log(err.response.data.message);
-            return err.response.data.message;
+            return err.response.data;
         } else {
             console.error('An unknown error occurred:', err);
         }

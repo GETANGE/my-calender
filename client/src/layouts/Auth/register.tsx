@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { registerUser } from './../../components/api';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { RiAccountCircleLine, RiLockPasswordLine } from 'react-icons/ri';
 import { MdOutlineCall, MdOutlineMail } from 'react-icons/md';
 
@@ -13,17 +15,27 @@ const RegisterForm = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const navigate = useNavigate();
 
     // Mutation for registering a user
     const mutation = useMutation(registerUser, {
-        onSuccess: (data) => {
-            console.log('Registration successful:', data);
-            setSuccess('Registration successful!');
-            setError(''); // Clear any previous errors
+        onSuccess: (data:any) => {
+            
+            const token = data?.token;
+
+            if (token) {
+                localStorage.setItem('token', JSON.stringify({token}));
+                setSuccess('Registration successful!');
+                setError(''); // Clear any previous errors
+
+                navigate('/user-dashboard');
+            }else {
+                setError(data.message);
+                setSuccess(''); // Clear success message on error
+            }
         },
-        onError: (error) => {
-            console.error('Registration failed:', error);
-            setError("Registration failed");
+        onError: (error:any) => {
+            console.log('Registration failed:', error.data.message);
             setSuccess(''); // Clear success message on error
         },
     });
@@ -35,6 +47,7 @@ const RegisterForm = () => {
             setSuccess('');
             return;
         }
+
         setError(''); // Clear previous errors
         setSuccess(''); // Clear previous success message
         mutation.mutate({

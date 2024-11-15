@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { FaArrowRight } from "react-icons/fa6";
 import { FcCalendar } from "react-icons/fc";
@@ -8,7 +9,17 @@ import Testimonial from "@/components/landing/testimonials";
 import ResponsiveFooter from "@/components/landing/footer";
 
 export default function Landing() {
+
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // check if there is a token in the local storage
+        const token = localStorage.getItem('token');
+        
+        if (token) {
+            navigate('/user-dashboard');
+        }
+    });
 
     return (
         <div>
