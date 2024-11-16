@@ -75,6 +75,10 @@ export const loginUser = async (req:Request, res:Response, next:NextFunction) =>
             }
         });
 
+        if(!user){
+            return next(new AppError("This user does not exist", 404));
+        }
+
         if(user.active === "INACTIVE"){
             return next(new AppError("Your account is not activated yet.", 403));
         }
