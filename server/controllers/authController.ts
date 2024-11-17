@@ -24,10 +24,6 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             phoneNumber: string;
         };
 
-        // if (password !== passwordConfirm) {
-        //     return next(new AppError("Passwords do not match", 400));
-        // }
-
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await prisma.user.create({
