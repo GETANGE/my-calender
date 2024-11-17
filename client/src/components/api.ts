@@ -57,3 +57,81 @@ export const LoginUser = async (userData: UserData_2): Promise<string | undefine
         }
     }
 };
+
+// get all events 
+export const getEvents = async ()=>{
+    try{
+        const url = 'http://localhost:4000/api/v1/events';
+
+        const response = await axios.get(url);
+
+        return response.data;
+    } catch(err){
+
+        if(err instanceof AxiosError && err.response){
+            console.log(err.response.data.message);
+            return err.response.data;
+        } else {
+            console.error('An unknown error occurred:', err);
+        }
+    }
+}
+
+// create events
+export const createEvent = async (eventData: unknown)=>{
+    try{
+        const url = 'http://localhost:4000/api/v1/events';
+
+        const response = await axios.post(url, eventData);
+
+        return response.data;
+    } catch(err){
+
+        if(err instanceof AxiosError && err.response){
+            console.log(err.response.data.message);
+            return err.response.data;
+        } else {
+            console.error('An unknown error occurred:', err);
+        }
+    }
+}
+
+// update events
+export const updateEvent = async (eventId: number, eventData: unknown)=>{
+    try{
+        const url = `http://localhost:4000/api/v1/events/${eventId}`;
+
+        const response = await axios.patch(url, eventData);
+
+        return response.data;
+    } catch(err){
+
+        if(err instanceof AxiosError && err.response){
+            console.log(err.response.data.message);
+            return err.response.data;
+        } else {
+            console.error('An unknown error occurred:', err);
+        }
+    }
+}
+
+// delete events
+export const deleteEvent = async (eventId: number)=>{
+    try{
+        const url = `http://localhost:4000/api/v1/events/${eventId}`;
+
+        const response = await axios.delete(url);
+
+        return response.data;
+    } catch(err){
+
+        if(err instanceof AxiosError && err.response){
+            console.log(err.response.data.message);
+            return err.response.data;
+        } else {
+            console.error('An unknown error occurred:', err);
+        }
+    }
+}
+
+// add collaborators
