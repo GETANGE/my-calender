@@ -78,23 +78,42 @@ export const getEvents = async ()=>{
 }
 
 // create events
-export const createEvent = async (eventData: unknown)=>{
-    try{
+export const createEvent = async (eventData: unknown) => {
+    try {
+        // Retrieve the token from localStorage
+        const token = localStorage.getItem('token'); 
+
+        if (!token) {
+            console.log('No token found in localStorage');
+        }
+
+        // convert the token to an object.
+        const objectToken = JSON.parse(token);
+        console.log(objectToken);
+
         const url = 'http://localhost:4000/api/v1/events';
 
-        const response = await axios.post(url, eventData);
+        const response = await axios.post(url, eventData, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${objectToken.token}`,
+            },
+        });
+
+        console.log(response);
 
         return response.data;
-    } catch(err){
-
-        if(err instanceof AxiosError && err.response){
-            console.log(err.response.data.message);
+    } catch (err) {
+        if (err instanceof AxiosError && err.response) {
+            console.error('Error from API:', err.response.data.message);
             return err.response.data;
         } else {
             console.error('An unknown error occurred:', err);
+            throw err; // Re-throw error for further handling
         }
     }
-}
+};
+
 
 // update events
 export const updateEvent = async (eventId: number, eventData: unknown)=>{
