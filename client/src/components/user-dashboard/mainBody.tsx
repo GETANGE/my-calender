@@ -71,22 +71,30 @@ export default function MyCalendar() {
   });
 
   const handleSlotClick = (slotInfo: any) => {
-    setFormData({
-      ...formData,
-      startTime: slotInfo.start,
-      endTime: slotInfo.end,
-    });
-    setFormVisible(true);
+    if (slotInfo.start && slotInfo.end) {
+      setFormData({
+        ...formData,
+        startTime: slotInfo.start,
+        endTime: slotInfo.end,
+      });
+      setFormVisible(true);
+    } else {
+      console.error("Invalid slot selection");
+    }
   };
+  
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [name]: value,
+      };
+      return updatedData;
+    });
   };
 
   const handleArrayChange = (
@@ -101,24 +109,32 @@ export default function MyCalendar() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+  
     if (!formData.title || !formData.startTime || !formData.endTime) {
       setError("Title, start time, and end time are required.");
       return;
     }
+  
+    const formattedStartTime = new Date(formData.startTime).toISOString();
+    const formattedEndTime = new Date(formData.endTime).toISOString();
+
+    console.log("Date Format" +formattedStartTime, formattedEndTime);
 
     create_Event.mutate({
       title: formData.title,
       description: formData.description,
-      start: formData.startTime,
-      end: formData.endTime,
-      collaborators: formData.collaborators,
-      editSessions: formData.editSessions,
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+      collaborators: formData.collaborators.map((id) => ({ id })),
+      editSessions: formData.editSessions.map((id) => ({ id })),
     });
   };
+  
 
   return (
     <div className="relative">
       <Calendar
+        className="h-full bg-white rounded-lg shadow-sm overflow-hidden"
         localizer={localizer}
         events={myEventsList}
         startAccessor="start"
@@ -172,7 +188,7 @@ export default function MyCalendar() {
                 </label>
                 <input
                   type="text"
-                  value={formData.startTime?.toString() || ""}
+                  value={formData.startTime ? formData.startTime : ""}
                   disabled
                   className="w-full border bg-gray-100 rounded-lg px-3 py-2"
                 />
@@ -183,7 +199,7 @@ export default function MyCalendar() {
                 </label>
                 <input
                   type="text"
-                  value={formData.endTime?.toString() || ""}
+                  value={formData.endTime ? formData.endTime.toString() : ""}
                   disabled
                   className="w-full border bg-gray-100 rounded-lg px-3 py-2"
                 />
