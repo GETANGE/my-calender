@@ -1,43 +1,46 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Calendar } from "primereact/calendar";
+import { PiSpinnerBold } from "react-icons/pi";
+import { getUserEvents } from "../api";
 
 export default function InlineDemo() {
   const [date, setDate] = useState(null);
-  const [selectedCalendar, setSelectedCalendar] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Sample events data - to replaced with my actual data.
-  const calendarEvents = {
-    Birthday: [
-      { title: "John's Birthday", date: "2024-11-20", time: "All Day" },
-      { title: "Team Celebration", date: "2024-11-25", time: "3:00 PM" },
-    ],
-    "Daily Sync": [
-      { title: "Morning Standup", date: "2024-11-19", time: "9:00 AM" },
-      { title: "Project Sync", date: "2024-11-19", time: "2:00 PM" },
-    ],
-    Events: [
-      { title: "Tech Conference", date: "2024-11-22", time: "10:00 AM" },
-      { title: "Team Building", date: "2024-11-24", time: "1:00 PM" },
-    ],
-  };
+  // Fetch events using React Query
+  const { data: eventsData, isLoading, isError, error } = useQuery({
+    queryKey: ["events"],
+    queryFn: getUserEvents,
+  });
 
-  const categories = [
-    { name: "Personal", color: "bg-blue-100 text-blue-800" },
-    { name: "Work", color: "bg-green-100 text-green-800" },
-    { name: "Education", color: "bg-purple-100 text-purple-800" },
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <PiSpinnerBold className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
-  const calendars = [
-    { name: "Birthday", color: "bg-pink-100 text-pink-800" },
-    { name: "Daily Sync", color: "bg-orange-100 text-orange-800" },
-    { name: "Events", color: "bg-teal-100 text-teal-800" },
-  ];
+  if (isError) {
+    return <div className="text-red-600">Error: {error.message}</div>;
+  }
 
-  const handleCalendarClick = (calendar) => {
-    setSelectedCalendar({
-      ...calendar,
-      events: calendarEvents[calendar.name] || [],
-    });
+  // Map events data for the calendar view
+  const mappedEvents = eventsData?.data?.events?.map((event:any) => ({
+    id: event.id,
+    title: event.title,
+    description: event.description || "No description provided.",
+    startTime: new Date(event.startTime),
+    endTime: event.endTime ? new Date(event.endTime) : null,
+    colorCode: event.colorCode || "#cccccc", 
+    createdBy: event.createdBy,
+    imageUrl: event.imageUrl
+  }));
+
+  const handleEventClick = (event:any) => {
+    setSelectedEvent(event);
   };
 
   return (
@@ -45,69 +48,81 @@ export default function InlineDemo() {
       <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
         <Calendar
           value={date}
-          onChange={(e) => setDate(e.value)}
+          onChange={(e:any) => setDate(e.value)}
           inline
           showWeek
           className="w-full"
         />
       </div>
 
-      {/* Categories Section */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Categories</h3>
-        <ul className="space-y-3">
-          {categories.map((category) => (
-            <li key={category.name} className="flex items-center">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${category.color}`}>
-                {category.name}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* My Calendar Section */}
+      {/* Event List */}
       <div className="bg-white rounded-lg shadow-sm p-4">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">My Calendar</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Events</h3>
         <ul className="space-y-3">
-          {calendars.map((calendar) => (
-            <li key={calendar.name} className="flex items-center">
-              <button
-                onClick={() => handleCalendarClick(calendar)}
-                className={`px-3 py-1 rounded-full text-sm font-medium ${calendar.color} hover:opacity-80 transition-opacity`}
-              >
-                {calendar.name}
-              </button>
+          {mappedEvents.map((event: { id: Key | null | undefined; colorCode: any; title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; startTime: { toLocaleDateString: () => string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; toLocaleTimeString: () => string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }; }) => (
+            <li
+              key={event.id}
+              onClick={() => handleEventClick(event)}
+              className="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded-md transition-colors"
+            >
+              <div
+                className="w-4 h-4 rounded-full mr-3"
+                style={{ backgroundColor: event.colorCode }}
+              ></div>
+              <div>
+                <h4 className="font-medium">{event.title}</h4>
+                <p className="text-sm text-gray-600">
+                  {event.startTime.toLocaleDateString()} -{" "}
+                  {event.startTime.toLocaleTimeString()}
+                </p>
+              </div>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Events Modal */}
-      {selectedCalendar && (
+      {/* Event Modal */}
+      {selectedEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-lg w-1/3 p-6">
             <h2 className="text-lg font-bold text-gray-800 mb-4">
-              {selectedCalendar.name} Events
+            <strong>Title :</strong> {selectedEvent.title}
             </h2>
-            <div className="space-y-4">
-              {selectedCalendar.events.map((event, index) => (
-                <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                  <h4 className="font-medium">{event.title}</h4>
-                  <p className="text-sm text-gray-600">
-                    {event.date} at {event.time}
-                  </p>
-                </div>
-              ))}
-              {selectedCalendar.events.length === 0 && (
-                <p className="text-gray-500 text-center py-2">
-                  No events scheduled
+            <p className="text-gray-600 mb-4">
+            <strong>Description :</strong> {selectedEvent.description}
+            </p>
+            <div className="text-sm text-gray-600 mb-4">
+              <p>
+                <strong>Start Time:</strong>{" "}
+                {selectedEvent.startTime.toLocaleString()}
+              </p>
+              {selectedEvent.endTime && (
+                <p>
+                  <strong>End Time:</strong>{" "}
+                  {selectedEvent.endTime.toLocaleString()}
                 </p>
               )}
             </div>
+            <div className="text-sm text-gray-600">
+              <p>
+                <strong>Created By:</strong>
+              </p>
+              <div className="flex items-center mt-2">
+                <img
+                  src={selectedEvent.createdBy.imageUrl}
+                  alt={selectedEvent.createdBy.name}
+                  className="w-10 h-10 rounded-full mr-3"
+                />
+                <div >
+                  <span>{selectedEvent.createdBy.name}</span> <br/>
+                  <span>{selectedEvent.createdBy.email}</span>
+                </div>
+              </div>
+            </div>
+
             <div className="mt-6 flex justify-end">
               <button
-                onClick={() => setSelectedCalendar(null)}
+                onClick={() => setSelectedEvent(null)}
                 className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-200 hover:text-black"
               >
                 Close

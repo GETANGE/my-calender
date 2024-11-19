@@ -48,6 +48,24 @@ export const getUser = async(req:Request, res:Response, next:NextFunction)=>{
         const user = await Prisma.user.findUnique({
             where: {
                 id: parseInt(req.params.id)
+            },
+            include:{
+                events:{
+                    select:{
+                        id:true,
+                        title:true,
+                        description:true,
+                        startTime:true,
+                        endTime:true,
+                        createdBy:{
+                            select:{
+                                email:true,
+                                name: true,
+                                imageUrl:true
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -60,6 +78,7 @@ export const getUser = async(req:Request, res:Response, next:NextFunction)=>{
             data: user
         })
     } catch (error) {
+        console.log(error)
         return next(new AppError("Error getting user", 401))
     }
 }

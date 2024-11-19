@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { MdOutlineMail } from 'react-icons/md';
 import { RiLockPasswordLine } from 'react-icons/ri';
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const LoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const navigate = useNavigate();
 
@@ -51,31 +52,31 @@ const LoginForm = () => {
 
             // get the token from the response.
             const token = data?.token;
+            const userData= data?.data.id;
 
             if (token) {
                 localStorage.setItem('token', JSON.stringify({ token }));
+                localStorage.setItem('userData', JSON.stringify({userData}));
+
+                toast.success('LoggedIn successfully')
                 setSuccess('Login successful!');
-                setError('');
                 setEmail('');
                 setPassword('');
 
                 // Redirect to dashboard
                 navigate('/user-dashboard');
             } else {
-                setError(data.message);
+                toast.error(data.message)
             }
         },
         onError: (error: any) => {
             console.error('Login failed:', error);
-            setError(error?.response?.data?.message || 'Login failed. Please try again.');
-            setSuccess('');
+            toast.error(error?.response?.data?.message || 'Login failed. Please try again.');
         },
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
         mutation.mutate({ email, password });
     };
 
@@ -97,7 +98,6 @@ const LoginForm = () => {
                 </p>
 
                 {success && <p className="text-green-900 text-xl text-center mb-4">{success}</p>}
-                {error && <p className="text-red-500 text-xl text-center mb-4">{error}</p>}
 
                 {/* Email Field */}
                 <div className="w-full relative mb-4">
@@ -137,6 +137,7 @@ const LoginForm = () => {
                     Login
                 </Button>
             </form>
+            <ToastContainer/>
         </div>
     );
 };

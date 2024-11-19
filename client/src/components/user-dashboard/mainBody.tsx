@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { createEvent } from "../api";
 import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 // Localizer configuration
 const locales = {
@@ -48,8 +49,7 @@ export default function MyCalendar() {
   });
 
   const create_Event = useMutation(createEvent, {
-    onSuccess: (newEvent: any) => {
-      toast.success(`Event ${newEvent.title} created successfully`);
+    onSuccess: () => {
       setFormVisible(false);
       setFormData({
         title: "",
@@ -59,10 +59,12 @@ export default function MyCalendar() {
         collaborators: [],
         editSessions: [],
       });
+      toast.success(`Event created successfully`);
       setError("");
     },
     onError: (error: any) => {
       console.error("Error creating an event", error);
+      toast.error(error.data.message)
       setError(
         error?.response?.data?.message ||
           "Event creation failed. Please try again."
@@ -117,8 +119,6 @@ export default function MyCalendar() {
   
     const formattedStartTime = new Date(formData.startTime).toISOString();
     const formattedEndTime = new Date(formData.endTime).toISOString();
-
-    console.log("Date Format" +formattedStartTime, formattedEndTime);
 
     create_Event.mutate({
       title: formData.title,
@@ -262,13 +262,13 @@ export default function MyCalendar() {
                 <button
                   type="button"
                   onClick={() => setFormVisible(false)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400"
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-black hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-300 hover:text-black"
                 >
                   Create Event
                 </button>
