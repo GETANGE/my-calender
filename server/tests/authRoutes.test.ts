@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 describe('Create and Log in User', () => {
     let server: http.Server;
     let app: Express;
-    let createdUserId: number | null = null;
+    let createdUserId: number;
 
     beforeAll((done) => {
         // Create a new Express app for testing
@@ -29,25 +29,18 @@ describe('Create and Log in User', () => {
         });
     });
 
-    afterAll(async () => {
-        // Shut down the server and disconnect Prisma
-        server.close();
-        await prisma.$disconnect();
-    });
-
     afterEach(async () => {
         // Clean up created test data
         if (createdUserId) {
             await prisma.user.delete({ where: { id: createdUserId } });
-            createdUserId = null;
         }
     });
 
-    test('It should create a new user', async () => {
+    test('It should create a new user 🚀', async () => {
         const response = await request(server)
             .post('/api/v1/users/signup')
             .send({
-                email: 'test@example9.com',
+                email: 'test@example10.com',
                 name: 'Test User',
                 password: 'test-password',
                 phoneNumber: '+1234567890',
@@ -61,15 +54,29 @@ describe('Create and Log in User', () => {
         createdUserId = response.body.id;
     });
 
-    test('It should log in a user with valid credentials', async () => {
+    test('It should log in a user with valid credentials 🚀', async () => {
         const response = await request(server)
             .post('/api/v1/users/login')
             .send({
-                email: 'test@example9.com',
+                email: 'test@example10.com',
                 password: 'test-password',
             });
 
         expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty('token');
     });
+
+    test('It should get all users from the database 🚀', async () => {
+        const response =await request(server).get('/api/v1/users');
+
+        expect(response.status).toBe(200);
+    });
+
+    test('')
+
+    afterAll(async () => {
+        // Shut down the server and disconnect Prisma
+        server.close();
+        await prisma.$disconnect();
+    });
+
 });

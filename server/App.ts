@@ -39,8 +39,6 @@ app.get("/", (req: Request, res: Response) => {
     });
 });
 
-export default app;
-
 // Handling undefined routes
 app.use("*", (req: Request, res: Response, next:NextFunction) => {
     return next(new AppError(`This route ${req.originalUrl} is not yet defined`, 401));

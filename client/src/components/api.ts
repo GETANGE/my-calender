@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosError } from 'axios';
+
 
 // Define the type for user data
 interface UserData_1 {
@@ -81,7 +83,7 @@ export const getEvents = async ()=>{
 export const createEvent = async (eventData: unknown) => {
     try {
         // Retrieve the token from localStorage
-        const token = localStorage.getItem('token'); 
+        const token:any = localStorage.getItem('token'); 
 
         if (!token) {
             console.log('No token found in localStorage');
@@ -153,4 +155,26 @@ export const deleteEvent = async (eventId: number)=>{
     }
 }
 
-// add collaborators
+// get a single-user
+export const getUserEvents = async ()=>{
+        // get user_id from the local storage
+        const userData:any = localStorage.getItem('userData');
+
+        const userDataId = JSON.parse(userData);
+        
+    try {
+        const url = `http://localhost:4000/api/v1/users/${userDataId.userData}`;
+
+        const response = await axios.get(url);
+
+        console.log(response.data)
+
+        return response.data
+    } catch (error) {
+        if(error instanceof AxiosError && error.response ){
+            return error.response.data
+        }else{
+            console.log("An unknown error occured")
+        }
+    }
+}

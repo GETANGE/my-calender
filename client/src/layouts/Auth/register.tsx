@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { RiAccountCircleLine, RiLockPasswordLine } from 'react-icons/ri';
 import { MdOutlineCall, MdOutlineMail } from 'react-icons/md';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const RegisterForm = () => {
     const [name, setUsername] = useState('');
@@ -22,19 +24,24 @@ const RegisterForm = () => {
         onSuccess: (data:any) => {
             
             const token = data?.token;
+            const userData = data?.data.id
 
             if (token) {
                 localStorage.setItem('token', JSON.stringify({token}));
+                localStorage.setItem('userData', JSON.stringify({userData}))
+                toast.success("Registration successful!")
                 setSuccess('Registration successful!');
-                setError(''); // Clear any previous errors
+                setError(''); 
 
                 navigate('/user-dashboard');
             }else {
+                toast.error(data.message)
                 setError(data.message);
                 setSuccess(''); // Clear success message on error
             }
         },
         onError: (error:any) => {
+            toast.error(error.data.message)
             console.log('Registration failed:', error.data.message);
             setSuccess(''); // Clear success message on error
         },
@@ -146,6 +153,7 @@ const RegisterForm = () => {
                     Register
                 </Button>
             </form>
+            <ToastContainer/>
         </div>
     );
 };
