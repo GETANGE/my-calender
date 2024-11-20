@@ -4,13 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Calendar } from "primereact/calendar";
 import { PiSpinnerBold } from "react-icons/pi";
 import { getUserEvents } from "../api";
+import UserProfile from "./userProfile";
 
 export default function InlineDemo() {
   const [date, setDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   // Fetch events using React Query
-  const { data: eventsData, isLoading, isError, error } = useQuery({
+  const { data: eventsData, isLoading, isError } = useQuery({
     queryKey: ["events"],
     queryFn: getUserEvents,
   });
@@ -24,7 +25,7 @@ export default function InlineDemo() {
   }
 
   if (isError) {
-    return <div className="text-red-600">Error: {error.message}</div>;
+    return <div className="text-red-600 flex justify-center align-center">No data available for rendering</div>;
   }
 
   // Map events data for the calendar view
@@ -131,6 +132,8 @@ export default function InlineDemo() {
           </div>
         </div>
       )}
+
+      <UserProfile/>
     </div>
   );
 }

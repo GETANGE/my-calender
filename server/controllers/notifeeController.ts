@@ -2,59 +2,86 @@ import { NextFunction, Request, Response } from 'express';
 import { sendSMS } from '../utils/smsNotifee';
 import { PrismaClient } from '@prisma/client';
 import AppError from '../utils/AppError';
+import { sendMail } from '../utils/Email';
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const prisma = new PrismaClient();
 
-export const  triggerNotifications = async (req:Request, res:Response, next:NextFunction)=>{
+export const triggerNotifications = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        // Logic to trigger notifications goes here
-        //  SMS and Socket.io notifications
-        
-        // STEP1: Get the collaborator and creator's data from the collaborator Model
+        // Fetch collaborator and related details
         const collaborator = await prisma.collaborator.findUnique({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.body.id),
             },
-            // STEP2: Get the creator user profile data.
             select: {
                 event: {
                     select: {
                         createdBy: {
                             select: {
                                 name: true,
-                                phoneNumber: true
-                            }
-                        }
-                    }
+                                phoneNumber: true,
+                                email:true
+                            },
+                        },
+                        title: true,
+                    },
                 },
-            // STEP3: Get the collaborator user profile data.
                 user: {
                     select: {
                         name: true,
-                        phoneNumber: true
-                    }
-                }
-            }
+                        phoneNumber: true,
+                        email:true
+                    },
+                },
+            },
         });
-        // STEP4: Prepare the SMS message with the necessary data (e.g., collaborator's name, event details, etc.)
-        // STEP5: Use the sendSMS function to send the SMS to the collaborator and creator.
-        // STEP6: Use Socket.io to notify the collaborator and creator about the new notification.
 
-        const { phoneNumber, message } = req.body;
-
-        try {
-            await sendSMS(phoneNumber, message);
-
-            res.status(200).json({
-                status:'success',
-                message: 'SMS sent successfully'
-            })
-        } catch (error) {
-            console.log(new AppError("Error sending sms", 401))
+        if (!collaborator) {
+            return next(new AppError("Collaborator not found", 404));
         }
 
-        res.status(200).json({ message: 'Notifications triggered successfully' });
+        // Prepare the SMS message
+        const { user, event } = collaborator;
+        const sms = `Your event "${event?.title}" created by ${event?.createdBy?.name} is about to start in the next 10 minutes.`;
+
+        // Send SMS to collaborator and creator
+        try {
+            if (user?.phoneNumber) {
+                await sendSMS(user.phoneNumber, sms);
+
+                await sendMail({
+                    email: user.email,
+                    subject: "Reminder",
+                    name:user.name,
+                    message: sms,
+                    from: process.env.EMAIL_ADDRESS,
+                });
+            }
+
+            if (event?.createdBy?.phoneNumber) {
+                await sendSMS(event.createdBy.phoneNumber, sms);
+
+                await sendMail({
+                    email: user.email,
+                    subject: "Reminder",
+                    name:user.name,
+                    message: sms,
+                    from: process.env.EMAIL_ADDRESS,
+                });
+            }
+
+            res.status(200).json({
+                status: 'success',
+                message: 'Notifications sent successfully',
+            });
+        } catch (error) {
+            console.error("Error sending SMS:", error);
+            return next(new AppError("Error sending SMS", 500));
+        }
     } catch (error) {
         next(error);
     }
-}
+};

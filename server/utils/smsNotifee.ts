@@ -15,17 +15,22 @@ const africasTalking = AfricasTalking(credentials);
 const sms = africasTalking.SMS;
 
 // send SMS 
-export const sendSMS = async (to: string, message: string) => {
+export const sendSMS = async (phoneNumber: string, message: string, from?: string) => {
     try {
-        const response = await sms.send({
-            to: [to],
+        const payload: any = {
+            to: [phoneNumber],
             message: message,
-            from: "My-calender"
-        });
+        };
+
+        if (from) {
+            payload.from = from; // Add `from` only if provided
+        }
+
+        const response = await sms.send(payload);
 
         return response;
     } catch (error) {
         console.log("Error sending SMS:", error);
-        return (new AppError("Error sending SMS:", 403));
+        throw new AppError("Error sending SMS", 403);
     }
 };
