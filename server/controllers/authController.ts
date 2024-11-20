@@ -171,16 +171,19 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
             }
         })
 
-        const resetUrl = `${req.hostname}/${req.originalUrl}/reset-password/${resetToken}`;
+        const otpToken:any = resetToken;
 
         // Send email with reset URL
         try {
             await sendMail({
                 email: user.email,
                 subject: "Reset your password",
-                text: `Click this link to reset your password: ${resetUrl}`,
-                from: process.env.EMAIL_ADDRESS!
-            })
+                from: process.env.EMAIL_ADDRESS!,
+                name: user.name, 
+                message: `You are receiving this email because you (or someone else) have requested a password reset. Please copy the OTP token below to complete the process:`,
+                otp:`${otpToken}`
+            });
+            
             res.status(200).json({
                 status: "success",
                 message: "Reset password email sent"

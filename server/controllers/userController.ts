@@ -185,6 +185,22 @@ export const activateUser = async(req:Request, res:Response, next:NextFunction)=
 // updating user details
 export const updateUser = async(req:any, res:Response, next:NextFunction)=>{
     try {
+        const token = await simulateToken(req, res, next);
+
+        if(!token){
+            return next(new AppError("Token not verified", 401));
+        }
+
+        const decodedId = decodeTokenId(token);
+
+        const user = await Prisma.user.findUnique({
+            where: { id: decodedId }
+        });
+
+        if (!user) {
+            return next(new AppError("User not found", 404));
+        }
+
         const {password, passwordConfirm} = req.body as {
             password:string;
             passwordConfirm:string;
@@ -194,13 +210,18 @@ export const updateUser = async(req:any, res:Response, next:NextFunction)=>{
             return next(new AppError("This route is not defined for password resetting", 401))
         }
 
-        const filteredBody = filteredObj(req.body, 'name', 'email');
+        const filteredBody = filteredObj(req.body, 'name', 'email', 'phoneNumber');
 
         await Prisma.user.update({
             where: {
-                id: parseInt(req.user.id)
+                id: parseInt(decodedId)
             },
             data: filteredBody
+        })
+
+        res.status(200).json({
+            status:"success",
+            message: "user data updated successfully"
         })
     } catch (error) {
         console.log("The error is", error);

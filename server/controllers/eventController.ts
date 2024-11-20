@@ -125,7 +125,8 @@ export const createEvent = async (req: any, res: Response, next: NextFunction) =
                         await sendMail({
                             email: user.user.email,
                             subject: "New Event Created",
-                            text: `A new event "${title}" has been created by user ${creator.email}.`,
+                            name:user.user.name,
+                            message: `A new event "${title}" has been created by user ${creator.email}.`,
                             from: creator.email,
                         });
                     }

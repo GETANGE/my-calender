@@ -60,6 +60,31 @@ export const LoginUser = async (userData: UserData_2): Promise<string | undefine
     }
 };
 
+// get a single user profile
+export const getSingleUser = async ()=>{
+        // get user_id from the local storage
+        const userData:any = localStorage.getItem('userData');
+
+        const userDataId = JSON.parse(userData);
+        console.log(userDataId)
+
+    try {
+        const url = `http://localhost:4000/api/v1/users/${userDataId.userData}`;
+
+        const response = await axios.get(url)
+        console.log(response)
+
+        return response.data;
+    } catch (err) {
+        if (err instanceof AxiosError && err.response) {
+            console.log(err.response.data.message);
+            return err.response.data;
+        } else {
+            console.error('An unknown error occurred:', err);
+        }
+    }
+}
+
 // get all events 
 export const getEvents = async ()=>{
     try{
