@@ -234,30 +234,22 @@ export const updateProfilePicture = async (req: any, res: Response, next: NextFu
     try {
         const token = await simulateToken(req, res, next);
 
-        if(!token){
+        if (!token) {
             return next(new AppError("Token not verified", 401));
         }
 
         const decodedId = decodeTokenId(token);
 
         const user = await Prisma.user.findUnique({
-            where: { id: decodedId }
+            where: { id: decodedId },
         });
 
         if (!user) {
             return next(new AppError("User not found", 404));
         }
 
-        // If the user has an existing image, delete it first
-        if (user.imageUrl) {
-            const oldImageKey:any = user.imageUrl.split('/').pop(); // Get the image key from the URL
-            await deleteImage(oldImageKey);
-        }
-
         // Upload the new image
-        const { imageUrl } = await uploadImage(req.file) as {
-            imageUrl: string;
-        };
+        const { imageUrl } = (await uploadImage(req.file)) as { imageUrl: string };
 
         if (!imageUrl) {
             return next(new AppError("Error uploading image", 500));
@@ -266,15 +258,31 @@ export const updateProfilePicture = async (req: any, res: Response, next: NextFu
         // Update user's profile with the new image URL
         await Prisma.user.update({
             where: { id: decodedId },
-            data: { imageUrl: imageUrl }
+            data: { imageUrl: imageUrl },
         });
+
+        // If the user has an existing image, delete it after updating
+        if (user.imageUrl) {
+            const oldImageKey: string | undefined = user.imageUrl.split('/').pop(); // Extract the image key
+
+            if (oldImageKey) {
+                try {
+                    // Attempt to delete the old image
+                    await deleteImage(oldImageKey);
+                    console.log("Old image deleted successfully.");
+                } catch (deleteError) {
+                    console.warn("Failed to delete old image. Storage may have duplicates.", deleteError);
+                }
+            }
+        }
 
         res.status(200).json({
             status: "success",
-            message: "Profile picture updated successfully"
+            message: "Profile picture updated successfully",
+            imageUrl,
         });
     } catch (error: any) {
-        console.log("Error updating profile picture", error);
+        console.error("Error updating profile picture", error);
         return next(new AppError("Error updating profile", 500));
     }
 };

@@ -6,11 +6,12 @@ import { PiSpinnerBold } from "react-icons/pi";
 import { getUserEvents } from "../api";
 import UserProfile from "./userProfile";
 
+
 export default function InlineDemo() {
   const [date, setDate] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Fetch events using React Query
+  // Fetch events 
   const { data: eventsData, isLoading, isError } = useQuery({
     queryKey: ["events"],
     queryFn: getUserEvents,

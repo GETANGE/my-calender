@@ -33,7 +33,7 @@ router.get('/:id', getUser);
 router.post('/resetPassword/:otp',protectRoute, resetPassword);
 router.patch('/deactivate/:id',protectRoute, deactivateUser);
 router.patch('/activate/:id',protectRoute, restrictTo('ADMIN'), activateUser);
-router.patch('/deleteUser/:id', deleteUser);
+router.delete('/deleteUser/:id', deleteUser);
 
 router.patch('/updateProfile',protectRoute,upload.single('file'),updateProfilePicture);
 
