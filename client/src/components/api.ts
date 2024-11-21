@@ -66,13 +66,11 @@ export const getSingleUser = async ()=>{
         const userData:any = localStorage.getItem('userData');
 
         const userDataId = JSON.parse(userData);
-        console.log(userDataId)
 
     try {
         const url = `http://localhost:4000/api/v1/users/${userDataId.userData}`;
 
         const response = await axios.get(url)
-        console.log(response)
 
         return response.data;
     } catch (err) {
@@ -191,8 +189,6 @@ export const getUserEvents = async ()=>{
         const url = `http://localhost:4000/api/v1/users/${userDataId.userData}`;
 
         const response = await axios.get(url);
-
-        console.log(response.data)
 
         return response.data
     } catch (error) {
