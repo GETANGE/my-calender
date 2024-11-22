@@ -58,7 +58,7 @@ const LoginForm = () => {
                 localStorage.setItem('token', JSON.stringify({ token }));
                 localStorage.setItem('userData', JSON.stringify({userData}));
 
-                toast.success('LoggedIn successfully')
+                toast.success(data.message)
                 setSuccess('Login successful!');
                 setEmail('');
                 setPassword('');
@@ -66,12 +66,13 @@ const LoginForm = () => {
                 // Redirect to dashboard
                 navigate('/user-dashboard');
             } else {
-                toast.error(data.message)
+                console.log(data.message)
+                toast.error(data.data.message)
             }
         },
         onError: (error: any) => {
-            console.error('Login failed:', error);
-            toast.error(error?.response?.data?.message || 'Login failed. Please try again.');
+            console.log('Login failed:', error.response.data);
+            toast.error(error?.response?.data?.message || 'This user does not exist');
         },
     });
 

@@ -52,13 +52,70 @@ export const LoginUser = async (userData: UserData_2): Promise<string | undefine
     } catch (err) {
         // Handle errors safely
         if (err instanceof AxiosError && err.response) {
-            console.log(err.response.data.message);
+            console.log(err.response.data);
             return err.response.data;
         } else {
             console.error('An unknown error occurred:', err);
         }
     }
 };
+
+export const updateUserAPI=async(updateData:unknown)=>{
+
+    try{
+        const storedToken:any = localStorage.getItem('token');
+
+        const userToken = JSON.parse(storedToken);
+
+        const url ="http://localhost:4000/api/v1/users/updateMe";
+
+        const response = await axios.patch(url, updateData, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${userToken.token}`,
+            },
+        });
+
+        return response.data;
+    }catch(err){
+        if(err instanceof AxiosError && err.response){
+            console.log(err.response.data.message)
+            return err.response.data
+        }else{
+            console.log("An Unknown error occured")
+        }
+    }
+}
+
+// de-activate user account
+export const deleteUserAPI= async()=>{
+    try {
+        const userData:any = localStorage.getItem('userData');
+        const user_id = JSON.parse(userData);
+
+        const useredToken:any = localStorage.getItem('token')
+        const userToken = JSON.parse(useredToken)
+
+        const url =`http://localhost:4000/api/v1/users/deactivate/${user_id.userData}`;
+
+        const response = await axios.patch(url, {}, {
+            headers:{
+                'Content-TYpe': 'application/json',
+                Authorization: `Bearer ${userToken.token}`
+            }
+        })
+
+        return response.data;
+
+    } catch (err) {
+        if(err instanceof AxiosError && err.response){
+            console.log(err.response.data.message)
+            return err.response.data
+        }else{
+            console.log("An Unknown error occured")
+        }
+    }
+}
 
 // get a single user profile
 export const getSingleUser = async ()=>{

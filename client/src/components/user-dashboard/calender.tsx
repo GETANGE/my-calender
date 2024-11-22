@@ -61,7 +61,7 @@ export default function InlineDemo() {
       <div className="bg-white rounded-lg shadow-sm p-4">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Events</h3>
         <ul className="space-y-3">
-          {mappedEvents.map((event: { id: Key | null | undefined; colorCode: any; title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; startTime: { toLocaleDateString: () => string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; toLocaleTimeString: () => string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }; }) => (
+          {mappedEvents.slice(0,4).map((event: { id: Key | null | undefined; colorCode: any; title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; startTime: { toLocaleDateString: () => string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; toLocaleTimeString: () => string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }; }) => (
             <li
               key={event.id}
               onClick={() => handleEventClick(event)}

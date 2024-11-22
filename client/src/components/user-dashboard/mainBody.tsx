@@ -4,7 +4,7 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createEvent } from "../api";
 import { ToastContainer, toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -39,6 +39,7 @@ const myEventsList = [
 export default function MyCalendar() {
   const [formVisible, setFormVisible] = useState(false);
   const [error, setError] = useState("");
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -99,15 +100,15 @@ export default function MyCalendar() {
     });
   };
 
-  const handleArrayChange = (
-    field: "collaborators" | "editSessions",
-    value: string
-  ) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: [...prevData[field], value],
-    }));
-  };
+  // const handleArrayChange = (
+  //   field: "collaborators" | "editSessions",
+  //   value: string
+  // ) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [field]: [...prevData[field], value],
+  //   }));
+  // };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -119,17 +120,24 @@ export default function MyCalendar() {
   
     const formattedStartTime = new Date(formData.startTime).toISOString();
     const formattedEndTime = new Date(formData.endTime).toISOString();
-
-    create_Event.mutate({
-      title: formData.title,
-      description: formData.description,
-      startTime: formattedStartTime,
-      endTime: formattedEndTime,
-      collaborators: formData.collaborators.map((id) => ({ id })),
-      editSessions: formData.editSessions.map((id) => ({ id })),
-    });
-  };
   
+    create_Event.mutate(
+      {
+        title: formData.title,
+        description: formData.description,
+        startTime: formattedStartTime,
+        endTime: formattedEndTime,
+        collaborators: formData.collaborators.map((id) => ({ id })),
+        editSessions: formData.editSessions.map((id) => ({ id })),
+      },{
+        onSuccess:()=>{
+          queryClient.invalidateQueries({
+            queryKey: ['events']
+          })
+        }
+      }
+    );
+  };
 
   return (
     <div className="relative">
