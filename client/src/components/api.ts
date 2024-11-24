@@ -171,7 +171,6 @@ export const createEvent = async (eventData: unknown) => {
 
         // convert the token to an object.
         const objectToken = JSON.parse(token);
-        console.log(objectToken);
 
         const url = 'http://localhost:4000/api/v1/events';
 
@@ -181,8 +180,6 @@ export const createEvent = async (eventData: unknown) => {
                 Authorization: `Bearer ${objectToken.token}`,
             },
         });
-
-        console.log(response);
 
         return response.data;
     } catch (err) {
@@ -196,25 +193,45 @@ export const createEvent = async (eventData: unknown) => {
     }
 };
 
-
 // update events
-export const updateEvent = async (eventId: number, eventData: unknown)=>{
-    try{
-        const url = `http://localhost:4000/api/v1/events/${eventId}`;
-
-        const response = await axios.patch(url, eventData);
-
-        return response.data;
-    } catch(err){
-
-        if(err instanceof AxiosError && err.response){
-            console.log(err.response.data.message);
-            return err.response.data;
-        } else {
-            console.error('An unknown error occurred:', err);
-        }
-    }
+interface UpdateEventParams {
+    id: string | number;
+    eventData: unknown;
 }
+export const updateEvent = async ({ id, eventData }: UpdateEventParams) => {
+        try {
+            const token: any = localStorage.getItem('token');
+        
+            if (!token) {
+                console.log('No token found in localStorage');
+                throw new Error('No authentication token found');
+            }
+        
+            // convert the token to an object.
+            const objectToken = JSON.parse(token);
+        
+            const url = `http://localhost:4000/api/v1/events/${id}`;
+            
+
+        
+            const response = await axios.patch(url, eventData, {
+                headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${objectToken.token}`,
+                },
+            });
+        
+            return response.data;
+        } catch (err) {
+        if (err instanceof AxiosError && err.response) {
+                console.log('Error response:', err.response.data.message);
+                throw err.response.data;
+            } else {
+                console.error('An unknown error occurred:', err);
+                throw err;
+            }
+        }
+};
 
 // delete events
 export const deleteEvent = async (eventId: number)=>{
