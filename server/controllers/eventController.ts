@@ -207,7 +207,12 @@ export const updateEvent = async (req: Request, res: Response, next: NextFunctio
             where: {
                 id: parseInt(id)
             },
-            data: req.body
+            data: {
+                title:req.body.title,
+                description:req.body.description,
+                startTime:req.body.startTime,
+                endTime :req.body.endTime,
+            }
         })
 
         res.status(200).json({
