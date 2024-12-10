@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosError } from 'axios';
 
-
+const BaseUrl = 'http://localhost:4000/api/v1' 
 // Define the type for user data
 interface UserData_1 {
     name: string;
@@ -19,7 +19,7 @@ interface UserData_2 {
 // Function to register a user
 export const registerUser = async (userData: UserData_1): Promise<string | undefined> => {
     try {
-        const url = 'http://localhost:4000/api/v1/users/signup';
+        const url = `${BaseUrl}/users/signup`;
 
         const response = await axios.post(url, userData, {
             headers: {
@@ -40,7 +40,7 @@ export const registerUser = async (userData: UserData_1): Promise<string | undef
 
 export const LoginUser = async (userData: UserData_2): Promise<string | undefined> => {
     try {
-        const url = 'http://localhost:4000/api/v1/users/login';
+        const url = `${BaseUrl}/users/login`;
 
         const response = await axios.post(url, userData, {
             headers: {
@@ -67,7 +67,7 @@ export const updateUserAPI=async(updateData:unknown)=>{
 
         const userToken = JSON.parse(storedToken);
 
-        const url ="http://localhost:4000/api/v1/users/updateMe";
+        const url =`${BaseUrl}/users/updateMe`;
 
         const response = await axios.patch(url, updateData, {
             headers: {
@@ -96,7 +96,7 @@ export const deleteUserAPI= async()=>{
         const useredToken:any = localStorage.getItem('token')
         const userToken = JSON.parse(useredToken)
 
-        const url =`http://localhost:4000/api/v1/users/deactivate/${user_id.userData}`;
+        const url =`${BaseUrl}/users/deactivate/${user_id.userData}`;
 
         const response = await axios.patch(url, {}, {
             headers:{
@@ -125,7 +125,7 @@ export const getSingleUser = async ()=>{
         const userDataId = JSON.parse(userData);
 
     try {
-        const url = `http://localhost:4000/api/v1/users/${userDataId.userData}`;
+        const url = `${BaseUrl}/users/${userDataId.userData}`;
 
         const response = await axios.get(url)
 
@@ -143,7 +143,7 @@ export const getSingleUser = async ()=>{
 // get all events 
 export const getEvents = async ()=>{
     try{
-        const url = 'http://localhost:4000/api/v1/events';
+        const url = `${BaseUrl}/events`;
 
         const response = await axios.get(url);
 
@@ -172,7 +172,7 @@ export const createEvent = async (eventData: unknown) => {
         // convert the token to an object.
         const objectToken = JSON.parse(token);
 
-        const url = 'http://localhost:4000/api/v1/events';
+        const url = `${BaseUrl}/events`;
 
         const response = await axios.post(url, eventData, {
             headers: {
@@ -210,7 +210,7 @@ export const updateEvent = async ({ id, eventData }: UpdateEventParams) => {
             // convert the token to an object.
             const objectToken = JSON.parse(token);
         
-            const url = `http://localhost:4000/api/v1/events/${id}`;
+            const url = `${BaseUrl}/events/${id}`;
             
 
         
@@ -234,11 +234,20 @@ export const updateEvent = async ({ id, eventData }: UpdateEventParams) => {
 };
 
 // delete events
-export const deleteEvent = async (eventId: number)=>{
+export const deleteEvent = async (eventId: number):Promise<any>=>{
     try{
-        const url = `http://localhost:4000/api/v1/events/${eventId}`;
+        const storedToken:any = localStorage.getItem('token');
 
-        const response = await axios.delete(url);
+        const objectToken = JSON.parse(storedToken);
+
+        const url = `${BaseUrl}/events/${eventId}`;
+
+        const response = await axios.delete(url, {
+            headers:{
+                "Content-Type":"application/json",
+                Authorization: `Bearer ${objectToken.token}`
+            }
+        });
 
         return response.data;
     } catch(err){
@@ -260,7 +269,7 @@ export const getUserEvents = async ()=>{
         const userDataId = JSON.parse(userData);
         
     try {
-        const url = `http://localhost:4000/api/v1/users/${userDataId.userData}`;
+        const url = `${BaseUrl}/users/${userDataId.userData}`;
 
         const response = await axios.get(url);
 

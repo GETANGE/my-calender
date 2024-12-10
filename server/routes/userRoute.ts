@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 
 import { activateUser, deactivateUser, deleteUser, getAllUsers, getUser, updateProfilePicture, updateUser } from '../controllers/userController';
-import { createUser, forgotPassword, loginUser, protectRoute, resetPassword, restrictTo, updatePassword } from '../controllers/authController';
+import { createUser, forgotPassword, loginUser, protectRoute, resetPassword, restrictTo, updatePassword, verifyEmail } from '../controllers/authController';
 import AppError from '../utils/AppError';
 
 const router = express.Router();
@@ -30,6 +30,7 @@ router.patch('/updatePassword', updatePassword)
 router.patch('/updateMe',protectRoute, updateUser)
 
 router.get('/:id', getUser);
+router.patch('/email/:emailToken', verifyEmail);
 router.post('/resetPassword/:otp',protectRoute, resetPassword);
 router.patch('/deactivate/:id',protectRoute, deactivateUser);
 router.patch('/activate/:id',protectRoute, restrictTo('ADMIN'), activateUser);
