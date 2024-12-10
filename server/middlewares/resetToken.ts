@@ -12,3 +12,16 @@ export const generateResetToken = () => {
 
     return { resetToken, passwordResetToken, passwordResetExpiresAt };
 };
+
+// Genarate a random token to verify the user email before saving.
+export const generataEmailValidator = () =>{
+    const randomToken:number = crypto.randomInt(100000, 999999);
+
+    const hashedRandomToken = crypto.createHash('sha256')
+                                        .update(randomToken.toString())
+                                        .digest('hex');
+
+    const emailTokenExpiresAt = Date.now() + 10 * 60 * 1000;
+
+    return { randomToken, hashedRandomToken, emailTokenExpiresAt }
+}

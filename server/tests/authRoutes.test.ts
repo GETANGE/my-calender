@@ -58,7 +58,7 @@ describe('User Authentication Flow', () => {
     server.close();
   });
 
-  describe('User Registration', () => {
+  describe('User Registration test suite', () => {
     test('Should create a new user successfully', async () => {
       const response = await request(server)
         .post('/api/v1/users/signup')
@@ -90,7 +90,7 @@ describe('User Authentication Flow', () => {
     });
   });
 
-  describe('User Login', () => {
+  describe('User Login test suite', () => {
     test('Should login successfully with valid credentials', async () => {
       const response = await request(server)
         .post('/api/v1/users/login')
@@ -114,14 +114,14 @@ describe('User Authentication Flow', () => {
     });
   });
 
-  describe('User Management', () => {
+  describe('User Management test suite', () => {
     test('Should retrieve all users from the database', async () => {
       const response = await request(server).get('/api/v1/users');
       expect(response.status).toBe(200);
     });
   });
 
-  describe('Forgot Password Flow', () => {
+  describe('Forgot Password Flow test suite', () => {
     test('Should send reset password email successfully', async () => {
       const response = await request(server)
         .post('/api/v1/users/forgotPassword')
@@ -149,7 +149,7 @@ describe('User Authentication Flow', () => {
     });
   });
 
-  describe('Password Reset Flow', () => {
+  describe('Password Reset Flow test suite', () => {
     let resetToken: string;
     let hashedToken: string;
 

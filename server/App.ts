@@ -15,6 +15,7 @@ import eventRoute from './routes/eventsRoute'
 import collaboratorRoute from './routes/collaboratorRoute'
 import editSessionRoute from './routes/editSessionRoute'
 import notificationRoute from './routes/notifeeRoute'
+import { deleteUnverifiedUsersJob } from "./cron-jobs/auth-cron";
 
 // Middleware
 app.use(morgan("dev"));
@@ -68,6 +69,9 @@ async function startServer() {
         console.log(`[server]: Server is running at http://localhost:${port}`);
     });
 }
+
+// Perfom cron jobs
+deleteUnverifiedUsersJob
 
 // Handle graceful shutdown
 process.on("SIGINT", async () => {

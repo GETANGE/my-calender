@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import AppError from "../utils/AppError";
-import { generateResetToken } from "../middlewares/resetToken";
+import { generataEmailValidator, generateResetToken } from "../middlewares/resetToken";
 import dotenv from 'dotenv'
 import { sendMail } from "../utils/Email";
 import { decodeTokenId, simulateToken } from "../utils/decodeToken";
@@ -14,7 +14,7 @@ dotenv.config();
 const prisma = new PrismaClient();
 
 // Register a user
-export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+export const createUser = async (req: any, res: Response, next: NextFunction) => {
     try {
         const { name, email, password,role, phoneNumber } = req.body as {
             name: string;
@@ -23,6 +23,28 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
             password: string;
             phoneNumber: string;
         };
+
+        // check if the email already exists
+        const userEmail = await prisma.user.findUnique({ where: {
+            email: email
+        }})
+
+        if(userEmail){
+            return next(new AppError("This user already exists in our system", 409))
+        }
+
+        // send email validation Token
+        const { randomToken, hashedRandomToken, emailTokenExpiresAt } = generataEmailValidator();
+
+        //send email to the newUser
+        await sendMail({
+            email:email,
+            subject: "Email verification",
+            from: process.env.EMAIL_ADDRESS,
+            name:name,
+            message: `Please verify your mail by copying the OTP token below to complete the process`,
+            otp:`${randomToken}`
+        })
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -33,25 +55,71 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
                 phoneNumber:phoneNumber,
                 role: role as Role,
                 password:hashedPassword,
+                hashedRandomToken:hashedRandomToken,
+                emailTokenExpiresAt:new Date (emailTokenExpiresAt)
             }
         });
 
-        const token = jwt.sign({ id: newUser.id }, process.env.JWT_SECRET!, { expiresIn: process.env.EXPIRES });
+        req.newUser= newUser;
 
         res.status(201).json({
-            status: "success",
-            token: token,
+            status: "Email token validation sent",
             data: newUser
         });
-    } catch (error: any) {
-        if (error.code === "P2002" && error.meta?.target?.includes('email')) {
-            return next(new AppError("Email address already exists", 409));
-        }
 
+    } catch (error: any) {
         console.log(error)
         return next(new AppError("Error creating user", 500));
     }
 };
+
+// verify if the email submited is correct
+export const verifyEmail = async (req:Request, res:Response, next:NextFunction)=>{
+    try {
+        // get the token from the params
+        const hashedToken:string= crypto.createHash('sha256').update(req.params.emailToken).digest('hex');
+
+        if(!hashedToken){
+            return next(new AppError("Please provide a valid OTP verification token", 403))
+        }
+        
+        // find the token in the database
+        const newUser = await prisma.user.findFirst({
+            where: {
+                hashedRandomToken: hashedToken,
+                emailTokenExpiresAt:{
+                    gt: new Date()
+                }
+            }
+        })
+
+        if(!newUser){
+            return next( new AppError("Invalid or expired OTP token", 403))
+        }
+
+        // update user data
+        await prisma.user.update({
+            where: {
+                id:newUser.id
+            },
+            data: {
+                hashedRandomToken: null,
+                emailTokenExpiresAt: null
+            }
+        })
+
+        // assign JWT token
+        const Token = jwt.sign({id:newUser.id}, process.env.JWT_SECRET!, {expiresIn: process.env.EXPIRES})
+
+        res.status(200).json({
+            status:'Email verified successfully',
+            token:Token,
+            data: newUser
+        })
+    } catch (error) {
+        return next(new AppError("Error verifying email", 500))
+    }
+}
 
 // login users
 export const loginUser = async (req:Request, res:Response, next:NextFunction) =>{
