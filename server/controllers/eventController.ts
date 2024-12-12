@@ -3,12 +3,21 @@ import AppError from "../utils/AppError";
 import { PrismaClient } from "@prisma/client";
 import { sendMail } from "../utils/Email";
 import ApiFeatures from "../utils/ApiFeatures";
+import Redis from "ioredis";
 
 const prisma = new PrismaClient();
+
+const redis = new Redis();
 
 // get all events
 export const getAllEvents = async (req: Request, res: Response, next:NextFunction) => {
     try {
+        redis.get("AllEvents", (err, result)=>{
+            if(err){
+                console.log(err)
+            }
+        })
+
         const features = new ApiFeatures(prisma.event, req.query)
             .filtering()
             .sorting()
@@ -20,6 +29,7 @@ export const getAllEvents = async (req: Request, res: Response, next:NextFunctio
         if(events.length < 1){
             return next(new AppError("No events found", 404));
         }
+
         
         res.status(200).json({
             status: 'success',
