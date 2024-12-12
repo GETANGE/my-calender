@@ -1,5 +1,5 @@
 import express, { Express, NextFunction, Request, Response, ErrorRequestHandler } from "express";
-import { connectToDatabase, disconnectDatabase } from "./middlewares/database";
+import { connectToDatabase, connectToRedis, disconnectDatabase, disconnectToRedis } from "./middlewares/database";
 import dotenv from "dotenv";
 import AppError from './utils/AppError';
 import morgan from "morgan";
@@ -65,13 +65,11 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
 // Start server and connect to database
 async function startServer() {
     await connectToDatabase(); // Establish database connection
+    await connectToRedis()
     app.listen(port, () => {
         console.log(`[server]: Server is running at http://localhost:${port}`);
     });
 }
-
-// Perfom cron jobs
-deleteUnverifiedUsersJob
 
 // Handle graceful shutdown
 process.on("SIGINT", async () => {
@@ -83,5 +81,6 @@ process.on("SIGINT", async () => {
 startServer().catch(async (error) => {
     console.error("Error starting server:", error);
     await disconnectDatabase();
+    await disconnectToRedis();
     process.exit(1);
 });
