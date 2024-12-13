@@ -7,6 +7,7 @@ import AppError from "../utils/AppError";
 import { generataEmailValidator, generateResetToken } from "../middlewares/resetToken";
 import dotenv from 'dotenv'
 import { sendMail } from "../utils/Email";
+import { emailQueue } from "../cron-jobs/bullQueues";
 import { decodeTokenId, simulateToken } from "../utils/decodeToken";
 
 dotenv.config();
@@ -37,7 +38,7 @@ export const createUser = async (req: any, res: Response, next: NextFunction) =>
         const { randomToken, hashedRandomToken, emailTokenExpiresAt } = generataEmailValidator();
 
         //send email to the newUser
-        await sendMail({
+        await emailQueue.add({
             email:email,
             subject: "Email verification",
             from: process.env.EMAIL_ADDRESS,
@@ -243,7 +244,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 
         // Send email with reset URL
         try {
-            await sendMail({
+            await emailQueue.add({
                 email: user.email,
                 subject: "Reset your password",
                 from: process.env.EMAIL_ADDRESS!,
