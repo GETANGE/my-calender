@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import AppError from './AppError';
 import dotenv from 'dotenv'
+import { emailQueue } from '../cron-jobs/bullQueues';
 
 dotenv.config();
 
@@ -69,3 +70,16 @@ export const sendMail = async (options: Options) => {
         return new AppError(`Failed to send email: ${(error as Error).message}`, 500);
     }
 };
+
+// Queue processing
+emailQueue.process(async (job) => {
+    const { email, name, subject, message, otp, from } = job.data;
+    try {
+        console.log(`Processing email job for: ${email}`);
+        const result = await sendMail({ email, name, subject, message, otp, from });
+        console.log(`Email sent successfully:`, result);
+    } catch (error: any) {
+        console.error(`Failed to send email for ${email}:`, error.message);
+        throw error; // Mark the job as failed
+    }
+});

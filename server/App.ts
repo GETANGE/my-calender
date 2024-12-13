@@ -1,5 +1,6 @@
 import express, { Express, NextFunction, Request, Response, ErrorRequestHandler } from "express";
 import { connectToDatabase, connectToRedis, disconnectDatabase, disconnectToRedis } from "./middlewares/database";
+import { BullQueues, serverAdapter } from "./cron-jobs/bullQueues";
 import dotenv from "dotenv";
 import AppError from './utils/AppError';
 import morgan from "morgan";
@@ -31,6 +32,7 @@ app.use('/api/v1/events', eventRoute);
 app.use('/api/v1/collaborators', collaboratorRoute);
 app.use('/api/v1/editSession', editSessionRoute);
 app.use('/api/v1/notification', notificationRoute);
+app.use('/api/v1/admin/queues', serverAdapter.getRouter())
 
 // Root route
 app.get("/", (req: Request, res: Response) => {
@@ -62,10 +64,16 @@ app.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
     });
 });
 
+// Initialize Cron Jobs
+(async function initializeCronJobs() {
+    BullQueues()
+})();
+
 // Start server and connect to database
 async function startServer() {
     await connectToDatabase(); // Establish database connection
     await connectToRedis()
+    //  deleteUnverifiedUsersJob;
     app.listen(port, () => {
         console.log(`[server]: Server is running at http://localhost:${port}`);
     });

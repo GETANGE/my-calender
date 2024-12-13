@@ -1,6 +1,7 @@
 import AfricasTalking from "africastalking";
 import dotenv from 'dotenv';
 import AppError from "./AppError";
+import { smsQueue } from "../cron-jobs/bullQueues";
 
 dotenv.config();
 
@@ -34,3 +35,22 @@ export const sendSMS = async (phoneNumber: string, message: string, from?: strin
         throw new AppError("Error sending SMS", 403);
     }
 };
+
+smsQueue.process(async (job)=>{
+    const { phoneNumber, message, from }=job.data;
+
+    try {
+        console.log(`Processing sms job for ${phoneNumber}`);
+
+        const result = await sendSMS(
+            phoneNumber,
+            message,
+            from
+        );
+
+        console.log(`Sms sent successfully:`, result)
+    } catch (error:any) {
+        console.log(`Failed to send sms for ${phoneNumber}:`, error.message);
+        throw error;
+    }
+})
