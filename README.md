@@ -78,7 +78,7 @@ Follow these steps to set up Calendery locally on your machine:
    ```
 
 6. **🌐 Access the app:**
-   Open your browser and go to `http://localhost:5000`.
+   Open your browser and go to `http://localhost:5173`.
 
 ---
 
