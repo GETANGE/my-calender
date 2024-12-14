@@ -35,14 +35,14 @@ Follow these steps to set up Calendery locally on your machine:
 
 - 🟢 Node.js (v16 or higher)
 - 📦 npm or yarn
-- 🗄️ MongoDB (local or cloud instance)
+- 🗄️ PostgreSQL (local or cloud instance)
 
 ### Setup
 
 1. **📂 Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/calendery.git
+   git clone https://github.com/Getange/calendery.git
    ```
 
 2. **📁 Navigate to the project directory:**
@@ -65,7 +65,7 @@ Follow these steps to set up Calendery locally on your machine:
    - Add the following:
      ```env
      PORT=5000
-     MONGO_URI=your-mongodb-uri
+     DATABASE_URI=your-postgres-uri
      JWT_SECRET=your-secret-key
      ```
 
@@ -122,8 +122,8 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 For questions, suggestions, or support, please contact:
 
-- **Name**: [Emmanuel Getange]
-- **Email**: [[emmanuelgetange48@gmail.com](mailto:your-email@example.com)]
+- **Name**: Emmanuel Getange
+- **Email**: [emmanuelgetange48@gmail.com](mailto:your-email@example.com)
 - **GitHub**: [https://github.com/Getange](https://github.com/your-username)
 
 ---
