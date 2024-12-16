@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  name          String
+  imageUrl      String?        @default("https://images.unsplash.com/photo-1568992687947-868a62a9f521?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1974&q=80")
+  password      String
+  phoneNumber   String
+  role          Role           @default(USER)
+  active        Active         @default(ACTIVE)
+  passwordResetToken String?
+  passwordResetExpiresAt DateTime?
+  hashedRandomToken  String?
+  emailTokenExpiresAt DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  events        Event[]        @relation("UserEvents")
+  collaborators Collaborator[]
+  editSessions  EditSession[]  @relation("UserEditSessions")
+}
+
+model Event {
+  id              Int                @id @default(autoincrement())
+  title           String
+  description     String?
+  startTime       DateTime?
+  endTime         DateTime?
+  createdById     Int
+  createdBy       User               @relation("UserEvents", fields: [createdById], references: [id], onDelete: Cascade)
+  collaborators   Collaborator[]     @relation("EventCollaborators")
+  recurrence      RecurrencePattern?
+  colorCode       String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  editSessions    EditSession[]      @relation("EventEditSessions")
+}
+
+model Collaborator {
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId   Int
+  event     Event   @relation("EventCollaborators", fields: [eventId], references: [id], onDelete: Cascade)
+  role      Role2   @default(VIEWER)
+}
+
+model RecurrencePattern {
+  id          Int       @id @default(autoincrement())
+  frequency   Frequency
+  interval    Int
+  count       Int?
+  until       DateTime?
+  byDay       DayOfWeek[]
+  eventId     Int       @unique
+  event       Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model EditSession {
+  id          Int      @id @default(autoincrement())
+  eventId     Int      @unique
+  event       Event    @relation("EventEditSessions", fields: [eventId], references: [id], onDelete: Cascade)
+  userId      Int      @unique
+  user        User     @relation("UserEditSessions", fields: [userId], references: [id], onDelete: Cascade)
+  startTime   DateTime @default(now())
+  endTime     DateTime?
+  changes     Json     // Stores real-time edit logs
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Role2 {
+  EDITOR
+  VIEWER
+}
+
+enum Active {
+  ACTIVE
+  INACTIVE
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum DayOfWeek {
+  SUN
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+}
