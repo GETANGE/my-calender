@@ -20,7 +20,7 @@ Calendery is a modern, user-friendly web application designed to help you manage
 
 - **Frontend**: React.js, HTML5, CSS3, JavaScript
 - **Backend**: Node.js, Express.js
-- **Database**: MongoDB
+- **Database**: PostgreSQL
 - **Authentication**: JWT (JSON Web Tokens) for secure login and user management
 - **State Management**: Tansack Query
 - **API Integration**: RESTful APIs for event management and notifications
